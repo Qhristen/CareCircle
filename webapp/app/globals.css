@@ -1,0 +1,96 @@
+@import "tailwindcss";
+
+:root {
+  --surface: #fbf9f5;
+  --surface-container-low: #f5f3ef;
+  --surface-container: #efeeea;
+  --surface-container-high: #eae8e4;
+  --surface-container-highest: #e4e2de;
+  --on-surface: #1b1c1a;
+  --on-surface-variant: #58413b;
+  --primary: #a63412;
+  --primary-container: #c84c28;
+  --primary-fixed: #ffdbd1;
+  --on-primary-fixed: #3b0900;
+  --secondary: #306855;
+  --secondary-fixed: #b4efd6;
+  --on-secondary-fixed: #002117;
+  --tertiary: #825100;
+  --tertiary-container: #a36700;
+  --tertiary-fixed: #ffddb8;
+  --on-tertiary-fixed: #2a1700;
+  --outline: #8c716a;
+}
+
+@theme inline {
+  --color-surface: var(--surface);
+  --color-surface-container-low: var(--surface-container-low);
+  --color-surface-container: var(--surface-container);
+  --color-surface-container-high: var(--surface-container-high);
+  --color-surface-container-highest: var(--surface-container-highest);
+  --color-on-surface: var(--on-surface);
+  --color-on-surface-variant: var(--on-surface-variant);
+  --color-primary: var(--primary);
+  --color-primary-container: var(--primary-container);
+  --color-primary-fixed: var(--primary-fixed);
+  --color-on-primary-fixed: var(--on-primary-fixed);
+  --color-secondary: var(--secondary);
+  --color-secondary-fixed: var(--secondary-fixed);
+  --color-on-secondary-fixed: var(--on-secondary-fixed);
+  --color-tertiary: var(--tertiary);
+  --color-tertiary-container: var(--tertiary-container);
+  --color-tertiary-fixed: var(--tertiary-fixed);
+  --color-on-tertiary-fixed: var(--on-tertiary-fixed);
+  --color-outline: var(--outline);
+  --font-sans: var(--font-giftcircle), "Plus Jakarta Sans", ui-sans-serif,
+    system-ui, sans-serif;
+  --shadow-soft: 0 4px 20px -8px rgb(92 45 20 / 0.13);
+  --shadow-card: 0 22px 44px -24px rgb(92 45 20 / 0.34);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  overscroll-behavior-x: none;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button,
+a,
+select {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--primary) 28%, transparent);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: var(--primary-fixed);
+  color: var(--on-primary-fixed);
+}
+
+.hide-scrollbar {
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}

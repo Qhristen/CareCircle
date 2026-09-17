@@ -1,0 +1,205 @@
+"use client";
+
+import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
+import { ContributionPanel, type ContributionInput } from "@/components/circle-detail/contribution-panel";
+import { ContributorWall } from "@/components/circle-detail/contributor-wall";
+import { OrganizerModal } from "@/components/circle-detail/organizer-modal";
+import { WishlistSection } from "@/components/circle-detail/wishlist-section";
+import { Icon } from "@/components/ui/icon";
+import { getApiErrorMessage } from "@/lib/api-error";
+import { daysUntil, presentOccasion } from "@/lib/circle-presenters";
+import type { Backer, WishlistDetailItem } from "@/lib/circle-data";
+import { useGetCircleQuery, useMessageOrganizerMutation } from "@/lib/store/api/circleApi";
+import { useCreateContributionIntentMutation, useGetPublicContributionsQuery } from "@/lib/store/api/contributionApi";
+import type { CircleDetail, PublicContribution } from "@/types";
+
+function initials(name: string) {
+  return name?.split(/\s+/).map((part) => part[0]).join("").slice(0, 2).toUpperCase();
+}
+
+function relativeTime(value: string) {
+  const elapsed = Date.now() - new Date(value).getTime();
+  const minutes = Math.max(1, Math.floor(elapsed / 60_000));
+  if (minutes < 60) return `${minutes} min${minutes === 1 ? "" : "s"} ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"} ago`;
+  const days = Math.floor(hours / 24);
+  return `${days} day${days === 1 ? "" : "s"} ago`;
+}
+
+function toBacker(entry: PublicContribution, index: number): Backer {
+  const accents: Backer["accent"][] = ["primary", "secondary", "tertiary"];
+  return {
+    id: entry.id,
+    initials: entry.initials,
+    name: entry.displayName,
+    amount: (entry.amountKobo ?? 0) / 100,
+    amountHidden: entry.amountKobo === null,
+    time: relativeTime(entry.createdAt),
+    message: entry.message ?? "",
+    item: entry.wishlistItem?.name,
+    anonymous: entry.anonymous,
+    accent: entry.anonymous ? "neutral" : accents[index % accents.length],
+  };
+}
+
+export function CircleDetailsPage({ circleId }: { circleId: string }) {
+  const { data, error, isLoading, refetch } = useGetCircleQuery(circleId);
+console.log("CircleDetailsPage data:", data, "error:", error, "isLoading:", isLoading);
+
+  if (isLoading) {
+    return <main className="mx-auto min-h-screen max-w-[1240px] animate-pulse px-4 py-10 sm:px-6"><div className="h-12 w-2/3 rounded-xl bg-surface-container" /><div className="mt-8 h-96 rounded-2xl bg-surface-container" /></main>;
+  }
+
+  if (error || !data) {
+    return (
+      <main className="mx-auto grid min-h-[65vh] max-w-2xl place-items-center px-4 py-16 text-center">
+        <div>
+          <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-primary-fixed text-primary"><Icon name="gift" size={24} /></span>
+          <h1 className="mt-4 text-2xl font-extrabold text-on-surface">Circle unavailable</h1>
+          <p className="mt-2 text-sm text-on-surface-variant">{getApiErrorMessage(error, "This circle may be private, closed, or no longer available.")}</p>
+          <div className="mt-6 flex justify-center gap-3"><button className="rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-white" onClick={refetch} type="button">Try again</button><Link className="rounded-full bg-surface-container px-5 py-2.5 text-sm font-bold" href="/explore-circles">Explore circles</Link></div>
+        </div>
+      </main>
+    );
+  }
+
+  return <LoadedCircleDetails circle={data.data} />;
+}
+
+function LoadedCircleDetails({ circle }: { circle: CircleDetail }) {
+  const presentation = presentOccasion(circle?.occasion);
+  const organizerName = circle?.organizer.displayName;
+  const beneficiaryName = circle?.recipient.displayName;
+  const location = [circle?.recipient.city, circle?.recipient.countryCode].filter(Boolean).join(", ");
+  const circleLink = `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/circles/${circle?.slug}`;
+  const wishlist: WishlistDetailItem[] = circle?.wishlist.map((item, index) => ({
+    id: item.id,
+    emoji: item.emoji || "🎁",
+    name: item.name,
+    description: item.description || "A priority selected by the circle organizer.",
+    goal: item.targetAmountKobo / 100,
+    raised: item.fundedAmountKobo / 100,
+    accent: (["primary", "secondary", "tertiary"] as const)[index % 3],
+    completionNote: item.status === "funded" ? "Secured by the community" : undefined,
+    suggestedAmount: item.suggestedContributionKobo / 100,
+  }));
+  const { data: wallData } = useGetPublicContributionsQuery({ circleId: circle?.id, limit: 50 });
+  const backers = (wallData?.data ?? []).map(toBacker);
+  const [createIntent] = useCreateContributionIntentMutation();
+  const [messageOrganizer, { isLoading: isSendingMessage }] = useMessageOrganizerMutation();
+  const [amount, setAmount] = useState(5000);
+  const [allocation, setAllocation] = useState("general");
+  const [organizerOpen, setOrganizerOpen] = useState(false);
+  const [organizerMessage, setOrganizerMessage] = useState("");
+  const [replyEmail, setReplyEmail] = useState("");
+  const [toast, setToast] = useState("");
+  const [copied, setCopied] = useState(false);
+  const toastTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => () => {
+    if (toastTimeout.current) clearTimeout(toastTimeout.current);
+  }, []);
+
+  function showToast(message: string) {
+    setToast(message);
+    if (toastTimeout.current) clearTimeout(toastTimeout.current);
+    toastTimeout.current = setTimeout(() => setToast(""), 3500);
+  }
+
+  async function copyCircleLink() {
+    await navigator.clipboard.writeText(circleLink);
+    setCopied(true);
+    showToast("Circle link copied to clipboard!");
+    setTimeout(() => setCopied(false), 2500);
+  }
+
+  async function shareCircle() {
+    try {
+      if (navigator.share) await navigator.share({ title: circle.title, text: `Join us in supporting ${circle.title}.`, url: circleLink });
+      else await copyCircleLink();
+    } catch (error) {
+      if (!(error instanceof DOMException && error.name === "AbortError")) showToast("Sharing is unavailable here. Copy the circle link instead.");
+    }
+  }
+
+  function selectWishlistItem(item: WishlistDetailItem) {
+    const remaining = Math.max(item.goal - item.raised, 0);
+    setAmount(item.suggestedAmount ?? remaining);
+    setAllocation(item.id);
+    document.getElementById("contribution-panel")?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  async function handleContribution(input: ContributionInput) {
+    const response = await createIntent({
+      circleId: circle.id,
+      idempotencyKey: crypto.randomUUID(),
+      body: {
+        amount: input.amount,
+        amountKobo: Math.round(input.amount * 100),
+        currency: circle.funding.currency,
+        wishlistItemId: input.allocation === "general" ? undefined : input.allocation,
+        message: input.message || undefined,
+        privacy: { anonymous: input.anonymous, hideAmount: input.anonymous },
+        returnUrl: `${circleLink}?payment=return`,
+      },
+    }).unwrap();
+    if (!response.data.checkout.url) throw new Error("The payment provider did not return a checkout link.");
+    window.location.assign(response.data.checkout.url);
+  }
+
+  async function sendOrganizerMessage() {
+    try {
+      await messageOrganizer({ circleId: circle?.id, message: organizerMessage.trim(), replyEmail: replyEmail.trim() }).unwrap();
+      setOrganizerOpen(false);
+      setOrganizerMessage("");
+      showToast(`Message sent to ${organizerName}. They'll reply by email.`);
+    } catch (error) {
+      showToast(getApiErrorMessage(error, "Your message could not be sent."));
+    }
+  }
+
+  const raised = circle?.funding.raisedKobo / 100;
+  const goal = circle?.funding.goalKobo / 100;
+  const supporters = circle?.funding.supporterCount;
+
+  return (
+    <main className="min-h-screen bg-surface">
+      <section className="border-b border-surface-container-high bg-surface-container-low/60 px-4 py-2.5 sm:px-6">
+        <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-2 text-xs text-on-surface-variant">
+          <nav aria-label="Breadcrumb" className="flex min-w-0 flex-wrap items-center gap-2"><Link className="hover:text-primary" href="/">Home</Link><span>/</span><Link className="hover:text-primary" href="/explore-circles">Explore</Link><span>/</span><span>{presentation.label}</span><span>/</span><span className="max-w-[190px] truncate font-semibold text-on-surface sm:max-w-none">{circle?.title}</span></nav>
+          <div className="flex items-center gap-3"><span className="inline-flex items-center gap-1.5 rounded-full bg-secondary-fixed/60 px-2.5 py-1 text-[11px] font-extrabold text-secondary"><span className="h-1.5 w-1.5 rounded-full bg-secondary" /> {circle?.status}</span><button aria-label={`Share ${circle?.title}`} className="inline-flex items-center gap-1 font-bold hover:text-primary" onClick={shareCircle} type="button"><Icon name="share" size={15} /> Share</button></div>
+        </div>
+      </section>
+
+      <header className="bg-gradient-to-b from-surface-container-low via-surface to-surface px-4 pb-8 pt-6 sm:px-6">
+        <div className="mx-auto max-w-[1240px]">
+          <div className="mb-3 flex flex-wrap items-center gap-2"><span className="inline-flex items-center gap-1.5 rounded-full bg-secondary-fixed px-3 py-1 text-[11px] font-extrabold text-on-secondary-fixed"><Icon name="check" size={14} /> {circle?.organizer.verified ? "Verified Circle" : "Community Circle"}</span><span className="rounded-full bg-surface-container-highest px-3 py-1 text-[11px] font-semibold text-on-surface-variant">{circle?.privacy === "public" ? "Public" : circle?.privacy === "invite" ? "Invite only" : "Link only"}</span><span className="rounded-full bg-surface-container px-3 py-1 text-[11px]">📍 {location || "Nigeria"}</span></div>
+          <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end"><div className="max-w-3xl"><h1 className="text-3xl font-extrabold leading-tight tracking-[-0.03em] sm:text-4xl">{circle?.title}</h1><p className="mt-2 text-base leading-7 text-on-surface-variant">A community GiftCircle for {beneficiaryName}, organized by {organizerName}.</p></div><span className="rounded-full bg-white px-4 py-2 text-xs font-semibold shadow-sm">{supporters} supporter{supporters === 1 ? "" : "s"}</span></div>
+        </div>
+      </header>
+
+      <div className="mx-auto grid max-w-[1240px] grid-cols-1 items-start gap-8 px-4 pb-12 sm:px-6 lg:grid-cols-12">
+        <div className="min-w-0 space-y-8 lg:col-span-8">
+          <section className="overflow-hidden rounded-2xl bg-white shadow-card">
+            <div className="relative h-72 bg-surface-container sm:h-96"><Image alt={circle?.cover.alt} className="object-cover" fill priority sizes="(max-width: 1023px) 100vw, 66vw" src={circle?.cover.url || "/onbording_image.png"} unoptimized /><div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-[#211b18]/85 via-transparent to-transparent p-6 text-white"><span className="text-[11px] font-extrabold uppercase tracking-widest text-primary-fixed">{presentation.emoji} {presentation.label}</span><p className="mt-1 max-w-xl text-xl font-bold leading-7">Small acts of care, gathered by a community, become meaningful support.</p></div></div>
+            <div className="flex flex-wrap items-center justify-between gap-4 p-5 sm:p-6"><div className="flex items-center gap-3"><span className="grid h-14 w-14 place-items-center rounded-full bg-primary-fixed text-sm font-extrabold text-primary">{initials(organizerName)}</span><div><div className="inline-flex items-center gap-1.5 font-bold">{organizerName} {circle?.organizer.verified && <Icon className="text-secondary" name="check" size={16} />}</div><p className="text-xs text-on-surface-variant">Organizer • {location}</p></div></div><button className="inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-bold text-primary hover:bg-surface-container" onClick={() => setOrganizerOpen(true)} type="button"><Icon name="message" size={16} /> Message Organizer</button></div>
+          </section>
+
+          <article className="space-y-4 rounded-2xl bg-white p-6 shadow-soft sm:p-8"><div className="flex flex-wrap items-center justify-between gap-3"><h2 className="inline-flex items-center gap-2 text-xl font-bold"><Icon className="text-primary" name="heart" size={20} /> The Story Behind This Circle</h2><span className="text-[11px] font-semibold uppercase tracking-wider text-on-surface-variant">Updated {relativeTime(circle?.updatedAt)}</span></div><p className="whitespace-pre-wrap text-sm leading-7 text-on-surface-variant sm:text-base">{circle?.storyMarkdown || `${organizerName} created this GiftCircle to bring friends, family, and well-wishers together around practical support for ${beneficiaryName}.`}</p></article>
+
+          <WishlistSection items={wishlist} location={location || "Nigeria"} onFundItem={selectWishlistItem} />
+          <ContributorWall backers={backers} supporters={supporters} />
+        </div>
+
+        <ContributionPanel acceptsContributions={circle?.funding.acceptsContributions && circle?.viewer.canContribute} allocation={allocation} amount={amount} beneficiaryName={beneficiaryName} circleTitle={circle?.title} copied={copied} daysLeft={daysUntil(circle?.funding.closesAt)} location={location || "Nigeria"} onAllocationChange={setAllocation} onAmountChange={setAmount} onContribute={handleContribution} onCopy={copyCircleLink} raised={raised} shareUrl={circleLink} supporters={supporters} target={goal} wishlist={wishlist} />
+      </div>
+
+      <OrganizerModal circleTitle={circle?.title} message={organizerMessage} onClose={() => setOrganizerOpen(false)} onMessageChange={setOrganizerMessage} onReplyEmailChange={setReplyEmail} onSend={sendOrganizerMessage} open={organizerOpen} organizerName={organizerName} replyEmail={replyEmail} sending={isSendingMessage} />
+
+      <div aria-live="polite" className={`pointer-events-none fixed bottom-6 right-6 z-[80] flex max-w-sm items-center gap-2 rounded-xl bg-[#30312e] px-5 py-3 text-sm font-bold text-white shadow-2xl transition duration-300 ${toast ? "translate-y-0 opacity-100" : "translate-y-20 opacity-0"}`}><Icon className="text-secondary-fixed" name="check" size={18} /> {toast}</div>
+    </main>
+  );
+}
