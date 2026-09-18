@@ -3,7 +3,8 @@ import {
   getCircleWishlist,
   type Backer,
 } from "@/lib/circle-data";
-import type { Circle } from "@/lib/explore-data";
+import { presentOccasion } from "@/lib/circle-presenters";
+import type { Circle } from "@/types";
 
 export type DashboardPaymentFilter = "All" | "Bank Transfer" | "Card";
 
@@ -76,12 +77,36 @@ const supporterNames = [
 ];
 
 const rails = [
-  { label: "GTBank Transfer", badge: "Direct Escrow NGN", method: "Bank Transfer" as const },
-  { label: "Paystack (Mastercard)", badge: "Card Instant", method: "Card" as const },
-  { label: "Zenith USSD", badge: "USSD Cleared", method: "Bank Transfer" as const },
-  { label: "Access Bank", badge: "Direct Escrow NGN", method: "Bank Transfer" as const },
-  { label: "Kuda Bank", badge: "Instant EFT", method: "Bank Transfer" as const },
-  { label: "Flutterwave (Visa)", badge: "Card Instant", method: "Card" as const },
+  {
+    label: "GTBank Transfer",
+    badge: "Direct Escrow NGN",
+    method: "Bank Transfer" as const,
+  },
+  {
+    label: "Paystack (Mastercard)",
+    badge: "Card Instant",
+    method: "Card" as const,
+  },
+  {
+    label: "Zenith USSD",
+    badge: "USSD Cleared",
+    method: "Bank Transfer" as const,
+  },
+  {
+    label: "Access Bank",
+    badge: "Direct Escrow NGN",
+    method: "Bank Transfer" as const,
+  },
+  {
+    label: "Kuda Bank",
+    badge: "Instant EFT",
+    method: "Bank Transfer" as const,
+  },
+  {
+    label: "Flutterwave (Visa)",
+    badge: "Card Instant",
+    method: "Card" as const,
+  },
 ];
 
 const accents: DashboardContributor["accent"][] = [
@@ -126,7 +151,9 @@ function backerToContributor(
         ? wishlist[index % wishlist.length].name
         : "General Gift Vault"),
     rail: rail.badge,
-    note: backer.message || "Proud to be part of this circle and its community of care.",
+    note:
+      backer.message ||
+      "Proud to be part of this circle and its community of care.",
     accent: backer.accent,
     method: rail.method,
     anonymous: backer.anonymous,
@@ -141,7 +168,10 @@ function buildContributorRoster(
     backerToContributor(backer, index, wishlist),
   );
 
-  return Array.from({ length: circle.contributors }, (_, index) => {
+  const supporterCount =
+    circle.funding?.supporterCount ?? circle.supporterCount ?? 0;
+
+  return Array.from({ length: supporterCount }, (_, index) => {
     if (initial[index]) return initial[index];
 
     const name = supporterNames[index % supporterNames.length];
@@ -178,22 +208,39 @@ export function getOrganizerDashboardData(
     complete: item.raised >= item.goal,
   }));
   const recipientName = knownRecipients[circle.id] ?? circle.title;
-  const fundedPercent = Math.round((circle.raised / circle.goal) * 100);
-  const createdDay = 15 + circle.createdOrder;
-  const city = circle.city.split(",")[0];
+  const presentation = presentOccasion(circle.occasion);
+  const raised = circle.funding
+    ? circle.funding.raisedKobo / 100
+    : Number(circle.amountRaised ?? 0);
+  const goal = circle.funding
+    ? circle.funding.goalKobo / 100
+    : Number(circle.targetAmount ?? 0);
+  const supporterCount =
+    circle.funding?.supporterCount ?? circle.supporterCount ?? 0;
+  const city =
+    circle.city ||
+    circle.recipient?.city ||
+    circle.recipientCity ||
+    circle.countryCode ||
+    circle.recipient?.countryCode ||
+    circle.recipientCountryCode ||
+    "Nigeria";
+  const fundedPercent =
+    circle.funding?.percent ??
+    (goal > 0 ? Math.round((raised / goal) * 100) : 0);
 
   return {
     circleCode: `GC-${city.toUpperCase().replace(/\s+/g, "-")}-${stableCode(circle.id)}`,
-    createdAt: `May ${createdDay}, 2025`,
+    createdAt: "Recently created",
     recipientName,
-    summary: `Managing ${circle.categoryLabel.toLowerCase()} support for ${recipientName} with transparent contributions, item fulfillment, and community updates from ${circle.city}.`,
+    summary: `Managing ${presentation.label.toLowerCase()} support for ${recipientName} with transparent contributions, item fulfillment, and community updates from ${city}.`,
     fundedPercent,
-    remaining: Math.max(circle.goal - circle.raised, 0),
-    averageContribution: Math.round(circle.raised / Math.max(circle.contributors, 1)),
+    remaining: Math.max(goal - raised, 0),
+    averageContribution: Math.round(raised / Math.max(supporterCount, 1)),
     claimedItems: wishlist.filter((item) => item.complete).length,
-    blessingCount: Math.max(circle.contributors - 4, 0),
-    vendorName: `GiftCircle Verified Vendor (${city} Hub)`,
-    bundleName: `${recipientName}'s ${circle.categoryLabel} Care Bundle`,
+    blessingCount: Math.max(supporterCount - 4, 0),
+    vendorName: `CareCircle Verified Vendor (${city} Hub)`,
+    bundleName: `${recipientName}'s ${presentation.label} Care Bundle`,
     contributors: buildContributorRoster(circle, wishlist),
     wishlist,
   };

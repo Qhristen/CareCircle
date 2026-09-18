@@ -168,7 +168,7 @@ export class ClientDeliveryDto {
 }
 
 export class CreateCircleDto {
-  @ApiProperty({ example: "Sarah's New Baby GiftCircle" })
+  @ApiProperty({ example: "Sarah's New Baby CareCircle" })
   @IsOptional()
   @IsString()
   @Length(3, 140)

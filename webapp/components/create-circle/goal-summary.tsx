@@ -41,20 +41,20 @@ export function GoalSummary({
       })),
     ...(buffer > 0
       ? [{
-          id: "flex-buffer",
-          label: "Logistics / Flex Cash",
-          value: buffer,
-          color: "#6b7280",
-        }]
+        id: "flex-buffer",
+        label: "Logistics / Flex Cash",
+        value: buffer,
+        color: "#6b7280",
+      }]
       : []),
   ];
   let allocationCursor = 0;
   const allocationGradient = allocations.length > 0 && total > 0
     ? `conic-gradient(${allocations.map((allocation) => {
-        const start = allocationCursor;
-        allocationCursor += (allocation.value / total) * 100;
-        return `${allocation.color} ${start}% ${allocationCursor}%`;
-      }).join(", ")})`
+      const start = allocationCursor;
+      allocationCursor += (allocation.value / total) * 100;
+      return `${allocation.color} ${start}% ${allocationCursor}%`;
+    }).join(", ")})`
     : "#e4e2de";
   const initials = recipientName
     .split(" ")
@@ -163,7 +163,7 @@ export function GoalSummary({
           </span>
           <span className="min-w-0">
             <span className="block truncate text-sm font-bold text-on-surface">
-              {title || `${recipientName || "Your recipient"}'s GiftCircle`}
+              {title || `${recipientName || "Your recipient"}'s CareCircle`}
             </span>
             <span className="block truncate text-sm text-on-surface-variant">
               Organized by You • {items.length} Items

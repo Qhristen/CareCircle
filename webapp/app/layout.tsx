@@ -6,15 +6,15 @@ import "./globals.css";
 import { Providers } from "@/components/providers";
 
 const plusJakarta = Plus_Jakarta_Sans({
-  variable: "--font-giftcircle",
+  variable: "--font-CareCircle",
   subsets: ["latin"],
   display: "swap",
 });
 
 export const metadata: Metadata = {
   title: {
-    default: "GiftCircle — Collective Support, Beautifully Gathered",
-    template: "%s | GiftCircle",
+    default: "CareCircle — Collective Support, Beautifully Gathered",
+    template: "%s | CareCircle",
   },
   description:
     "Create transparent community gift circles for life's celebrations and moments of care.",

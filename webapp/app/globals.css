@@ -42,8 +42,9 @@
   --color-tertiary-fixed: var(--tertiary-fixed);
   --color-on-tertiary-fixed: var(--on-tertiary-fixed);
   --color-outline: var(--outline);
-  --font-sans: var(--font-giftcircle), "Plus Jakarta Sans", ui-sans-serif,
-    system-ui, sans-serif;
+  --font-sans:
+    var(--font-CareCircle), "Plus Jakarta Sans", ui-sans-serif, system-ui,
+    sans-serif;
   --shadow-soft: 0 4px 20px -8px rgb(92 45 20 / 0.13);
   --shadow-card: 0 22px 44px -24px rgb(92 45 20 / 0.34);
 }

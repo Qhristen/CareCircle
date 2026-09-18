@@ -13,7 +13,7 @@ import { daysUntil, presentOccasion } from "@/lib/circle-presenters";
 import type { Backer, WishlistDetailItem } from "@/lib/circle-data";
 import { useGetCircleQuery, useMessageOrganizerMutation } from "@/lib/store/api/circleApi";
 import { useCreateContributionIntentMutation, useGetPublicContributionsQuery } from "@/lib/store/api/contributionApi";
-import type { CircleDetail, PublicContribution } from "@/types";
+import type { Circle, PublicContribution } from "@/types";
 
 function initials(name: string) {
   return name?.split(/\s+/).map((part) => part[0]).join("").slice(0, 2).toUpperCase();
@@ -47,7 +47,7 @@ function toBacker(entry: PublicContribution, index: number): Backer {
 
 export function CircleDetailsPage({ circleId }: { circleId: string }) {
   const { data, error, isLoading, refetch } = useGetCircleQuery(circleId);
-console.log("CircleDetailsPage data:", data, "error:", error, "isLoading:", isLoading);
+  console.log("CircleDetailsPage data:", data, "error:", error, "isLoading:", isLoading);
 
   if (isLoading) {
     return <main className="mx-auto min-h-screen max-w-[1240px] animate-pulse px-4 py-10 sm:px-6"><div className="h-12 w-2/3 rounded-xl bg-surface-container" /><div className="mt-8 h-96 rounded-2xl bg-surface-container" /></main>;
@@ -69,13 +69,42 @@ console.log("CircleDetailsPage data:", data, "error:", error, "isLoading:", isLo
   return <LoadedCircleDetails circle={data.data} />;
 }
 
-function LoadedCircleDetails({ circle }: { circle: CircleDetail }) {
+function LoadedCircleDetails({ circle }: { circle: Circle }) {
   const presentation = presentOccasion(circle?.occasion);
-  const organizerName = circle?.organizer.displayName;
-  const beneficiaryName = circle?.recipient.displayName;
-  const location = [circle?.recipient.city, circle?.recipient.countryCode].filter(Boolean).join(", ");
+  const organizer = circle.organizer ?? {
+    displayName: "CareCircle Organizer",
+    verified: false,
+  };
+  const recipient = circle.recipient ?? {
+    displayName: circle.recipientName ?? circle.title,
+    city: circle.recipientCity ?? circle.city ?? null,
+    countryCode:
+      circle.recipientCountryCode ?? circle.countryCode ?? "NG",
+  };
+  const cover = circle.cover ?? {
+    url: circle.coverImageUrl ?? null,
+    alt: circle.coverAlt || circle.title,
+  };
+  const funding = circle.funding ?? {
+    currency: circle.currency ?? "NGN",
+    goalKobo: Math.round(Number(circle.targetAmount ?? 0) * 100),
+    raisedKobo: Math.round(Number(circle.amountRaised ?? 0) * 100),
+    percent: 0,
+    supporterCount: circle.supporterCount ?? 0,
+    closesAt: circle.deadline ?? "",
+    acceptsContributions: circle.status.toLowerCase() === "active",
+  };
+  const wishlistItems = circle.wishlist ?? [];
+  const viewer = circle.viewer ?? {
+    canView: true,
+    canContribute: true,
+    canManage: false,
+  };
+  const organizerName = organizer.displayName;
+  const beneficiaryName = recipient.displayName;
+  const location = [recipient.city, recipient.countryCode].filter(Boolean).join(", ");
   const circleLink = `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/circles/${circle?.slug}`;
-  const wishlist: WishlistDetailItem[] = circle?.wishlist.map((item, index) => ({
+  const wishlist: WishlistDetailItem[] = wishlistItems.map((item, index) => ({
     id: item.id,
     emoji: item.emoji || "🎁",
     name: item.name,
@@ -139,7 +168,7 @@ function LoadedCircleDetails({ circle }: { circle: CircleDetail }) {
       body: {
         amount: input.amount,
         amountKobo: Math.round(input.amount * 100),
-        currency: circle.funding.currency,
+        currency: funding.currency,
         wishlistItemId: input.allocation === "general" ? undefined : input.allocation,
         message: input.message || undefined,
         privacy: { anonymous: input.anonymous, hideAmount: input.anonymous },
@@ -161,9 +190,9 @@ function LoadedCircleDetails({ circle }: { circle: CircleDetail }) {
     }
   }
 
-  const raised = circle?.funding.raisedKobo / 100;
-  const goal = circle?.funding.goalKobo / 100;
-  const supporters = circle?.funding.supporterCount;
+  const raised = funding.raisedKobo / 100;
+  const goal = funding.goalKobo / 100;
+  const supporters = funding.supporterCount;
 
   return (
     <main className="min-h-screen bg-surface">
@@ -176,25 +205,25 @@ function LoadedCircleDetails({ circle }: { circle: CircleDetail }) {
 
       <header className="bg-gradient-to-b from-surface-container-low via-surface to-surface px-4 pb-8 pt-6 sm:px-6">
         <div className="mx-auto max-w-[1240px]">
-          <div className="mb-3 flex flex-wrap items-center gap-2"><span className="inline-flex items-center gap-1.5 rounded-full bg-secondary-fixed px-3 py-1 text-[11px] font-extrabold text-on-secondary-fixed"><Icon name="check" size={14} /> {circle?.organizer.verified ? "Verified Circle" : "Community Circle"}</span><span className="rounded-full bg-surface-container-highest px-3 py-1 text-[11px] font-semibold text-on-surface-variant">{circle?.privacy === "public" ? "Public" : circle?.privacy === "invite" ? "Invite only" : "Link only"}</span><span className="rounded-full bg-surface-container px-3 py-1 text-[11px]">📍 {location || "Nigeria"}</span></div>
-          <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end"><div className="max-w-3xl"><h1 className="text-3xl font-extrabold leading-tight tracking-[-0.03em] sm:text-4xl">{circle?.title}</h1><p className="mt-2 text-base leading-7 text-on-surface-variant">A community GiftCircle for {beneficiaryName}, organized by {organizerName}.</p></div><span className="rounded-full bg-white px-4 py-2 text-xs font-semibold shadow-sm">{supporters} supporter{supporters === 1 ? "" : "s"}</span></div>
+          <div className="mb-3 flex flex-wrap items-center gap-2"><span className="inline-flex items-center gap-1.5 rounded-full bg-secondary-fixed px-3 py-1 text-[11px] font-extrabold text-on-secondary-fixed"><Icon name="check" size={14} /> {organizer.verified ? "Verified Circle" : "Community Circle"}</span><span className="rounded-full bg-surface-container-highest px-3 py-1 text-[11px] font-semibold text-on-surface-variant">{circle?.privacy === "public" ? "Public" : circle?.privacy === "invite" ? "Invite only" : "Link only"}</span><span className="rounded-full bg-surface-container px-3 py-1 text-[11px]">📍 {location || "Nigeria"}</span></div>
+          <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end"><div className="max-w-3xl"><h1 className="text-3xl font-extrabold leading-tight tracking-[-0.03em] sm:text-4xl">{circle?.title}</h1><p className="mt-2 text-base leading-7 text-on-surface-variant">A community CareCircle for {beneficiaryName}, organized by {organizerName}.</p></div><span className="rounded-full bg-white px-4 py-2 text-xs font-semibold shadow-sm">{supporters} supporter{supporters === 1 ? "" : "s"}</span></div>
         </div>
       </header>
 
       <div className="mx-auto grid max-w-[1240px] grid-cols-1 items-start gap-8 px-4 pb-12 sm:px-6 lg:grid-cols-12">
         <div className="min-w-0 space-y-8 lg:col-span-8">
           <section className="overflow-hidden rounded-2xl bg-white shadow-card">
-            <div className="relative h-72 bg-surface-container sm:h-96"><Image alt={circle?.cover.alt} className="object-cover" fill priority sizes="(max-width: 1023px) 100vw, 66vw" src={circle?.cover.url || "/onbording_image.png"} unoptimized /><div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-[#211b18]/85 via-transparent to-transparent p-6 text-white"><span className="text-[11px] font-extrabold uppercase tracking-widest text-primary-fixed">{presentation.emoji} {presentation.label}</span><p className="mt-1 max-w-xl text-xl font-bold leading-7">Small acts of care, gathered by a community, become meaningful support.</p></div></div>
-            <div className="flex flex-wrap items-center justify-between gap-4 p-5 sm:p-6"><div className="flex items-center gap-3"><span className="grid h-14 w-14 place-items-center rounded-full bg-primary-fixed text-sm font-extrabold text-primary">{initials(organizerName)}</span><div><div className="inline-flex items-center gap-1.5 font-bold">{organizerName} {circle?.organizer.verified && <Icon className="text-secondary" name="check" size={16} />}</div><p className="text-xs text-on-surface-variant">Organizer • {location}</p></div></div><button className="inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-bold text-primary hover:bg-surface-container" onClick={() => setOrganizerOpen(true)} type="button"><Icon name="message" size={16} /> Message Organizer</button></div>
+            <div className="relative h-72 bg-surface-container sm:h-96"><Image alt={cover.alt} className="object-cover" fill priority sizes="(max-width: 1023px) 100vw, 66vw" src={cover.url || "/onbording_image.png"} unoptimized /><div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-[#211b18]/85 via-transparent to-transparent p-6 text-white"><span className="text-[11px] font-extrabold uppercase tracking-widest text-primary-fixed">{presentation.emoji} {presentation.label}</span><p className="mt-1 max-w-xl text-xl font-bold leading-7">Small acts of care, gathered by a community, become meaningful support.</p></div></div>
+            <div className="flex flex-wrap items-center justify-between gap-4 p-5 sm:p-6"><div className="flex items-center gap-3"><span className="grid h-14 w-14 place-items-center rounded-full bg-primary-fixed text-sm font-extrabold text-primary">{initials(organizerName)}</span><div><div className="inline-flex items-center gap-1.5 font-bold">{organizerName} {organizer.verified && <Icon className="text-secondary" name="check" size={16} />}</div><p className="text-xs text-on-surface-variant">Organizer • {location}</p></div></div><button className="inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-bold text-primary hover:bg-surface-container" onClick={() => setOrganizerOpen(true)} type="button"><Icon name="message" size={16} /> Message Organizer</button></div>
           </section>
 
-          <article className="space-y-4 rounded-2xl bg-white p-6 shadow-soft sm:p-8"><div className="flex flex-wrap items-center justify-between gap-3"><h2 className="inline-flex items-center gap-2 text-xl font-bold"><Icon className="text-primary" name="heart" size={20} /> The Story Behind This Circle</h2><span className="text-[11px] font-semibold uppercase tracking-wider text-on-surface-variant">Updated {relativeTime(circle?.updatedAt)}</span></div><p className="whitespace-pre-wrap text-sm leading-7 text-on-surface-variant sm:text-base">{circle?.storyMarkdown || `${organizerName} created this GiftCircle to bring friends, family, and well-wishers together around practical support for ${beneficiaryName}.`}</p></article>
+          <article className="space-y-4 rounded-2xl bg-white p-6 shadow-soft sm:p-8"><div className="flex flex-wrap items-center justify-between gap-3"><h2 className="inline-flex items-center gap-2 text-xl font-bold"><Icon className="text-primary" name="heart" size={20} /> The Story Behind This Circle</h2><span className="text-[11px] font-semibold uppercase tracking-wider text-on-surface-variant">Updated {circle.updatedAt ? relativeTime(circle.updatedAt) : "recently"}</span></div><p className="whitespace-pre-wrap text-sm leading-7 text-on-surface-variant sm:text-base">{circle?.storyMarkdown || `${organizerName} created this CareCircle to bring friends, family, and well-wishers together around practical support for ${beneficiaryName}.`}</p></article>
 
           <WishlistSection items={wishlist} location={location || "Nigeria"} onFundItem={selectWishlistItem} />
           <ContributorWall backers={backers} supporters={supporters} />
         </div>
 
-        <ContributionPanel acceptsContributions={circle?.funding.acceptsContributions && circle?.viewer.canContribute} allocation={allocation} amount={amount} beneficiaryName={beneficiaryName} circleTitle={circle?.title} copied={copied} daysLeft={daysUntil(circle?.funding.closesAt)} location={location || "Nigeria"} onAllocationChange={setAllocation} onAmountChange={setAmount} onContribute={handleContribution} onCopy={copyCircleLink} raised={raised} shareUrl={circleLink} supporters={supporters} target={goal} wishlist={wishlist} />
+        <ContributionPanel acceptsContributions={Boolean(funding.acceptsContributions && viewer.canContribute)} allocation={allocation} amount={amount} beneficiaryName={beneficiaryName} circleTitle={circle?.title} copied={copied} daysLeft={daysUntil(funding.closesAt)} location={location || "Nigeria"} onAllocationChange={setAllocation} onAmountChange={setAmount} onContribute={handleContribution} onCopy={copyCircleLink} raised={raised} shareUrl={circleLink} supporters={supporters} target={goal} wishlist={wishlist} />
       </div>
 
       <OrganizerModal circleTitle={circle?.title} message={organizerMessage} onClose={() => setOrganizerOpen(false)} onMessageChange={setOrganizerMessage} onReplyEmailChange={setReplyEmail} onSend={sendOrganizerMessage} open={organizerOpen} organizerName={organizerName} replyEmail={replyEmail} sending={isSendingMessage} />

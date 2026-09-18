@@ -130,7 +130,7 @@ export class ModerationService {
       id,
       NotificationType.SYSTEM,
       'Account restored',
-      'Your GiftCircle account has been restored.',
+      'Your CareCircle account has been restored.',
     );
     return { message: 'User suspension removed' };
   }

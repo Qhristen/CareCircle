@@ -163,7 +163,7 @@ export function CircleDiscovery({ initialQuery = "" }: { initialQuery?: string }
       ) : error ? (
         <div className="mt-6 rounded-2xl bg-red-50 px-6 py-14 text-center">
           <h3 className="text-lg font-bold text-red-800">We couldn&apos;t load circles</h3>
-          <p className="mt-1 text-sm text-red-700">{getApiErrorMessage(error, "Check that the GiftCircle API is running, then try again.")}</p>
+          <p className="mt-1 text-sm text-red-700">{getApiErrorMessage(error, "Check that the CareCircle API is running, then try again.")}</p>
           <button className="mt-5 rounded-full bg-primary px-5 py-2.5 text-xs font-bold text-white" onClick={refetch} type="button">Try again</button>
         </div>
       ) : data && data?.data.length > 0 ? (

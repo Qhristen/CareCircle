@@ -75,21 +75,10 @@ export function SignInForm() {
       {error && <p className="rounded-lg bg-red-50 px-4 py-3 text-sm font-semibold text-red-700" role="alert">{error}</p>}
 
       <button className="mt-1 inline-flex w-full items-center justify-center gap-3 rounded-full bg-primary px-6 py-4 text-base font-extrabold text-white shadow-md transition hover:bg-primary-container active:scale-[0.99] disabled:cursor-wait disabled:opacity-80" disabled={isLoading} type="submit">
-        {isLoading ? "Verifying Circle Access..." : "Sign In to GiftCircle"}
+        {isLoading ? "Verifying Circle Access..." : "Sign In to CareCircle"}
         {!isLoading && <Icon name="arrow-right" size={20} />}
       </button>
 
-      <div className="flex justify-center pt-1">
-        <button className="inline-flex items-center gap-2 rounded-full bg-surface-container px-4 py-2 text-xs font-semibold text-on-surface-variant transition hover:bg-surface-container-high hover:text-on-surface" type="button">
-          <Icon className="text-primary" name="mail" size={16} />
-          Send me a passwordless magic link instead
-        </button>
-      </div>
-
-      <div className="mt-1 flex flex-col items-center justify-between gap-3 rounded-lg bg-surface-container-low p-4 text-[11px] font-semibold sm:flex-row">
-        <span className="inline-flex items-center gap-2"><Icon className="text-secondary" name="shield" size={17} /> 256-bit SSL Encrypted</span>
-        <span className="inline-flex items-center gap-2 text-on-surface-variant"><span className="h-1.5 w-1.5 rounded-full bg-secondary" /> Bank-Grade Escrow via ProvidusBank</span>
-      </div>
 
       <p className="text-center text-sm text-on-surface-variant">
         Don&apos;t have an account yet?{" "}

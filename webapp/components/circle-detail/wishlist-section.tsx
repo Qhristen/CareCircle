@@ -58,9 +58,8 @@ export function WishlistSection({
 
           return (
             <article
-              className={`flex flex-col items-start justify-between gap-4 rounded-2xl bg-white p-5 shadow-soft transition hover:shadow-card md:flex-row md:items-center ${
-                funded ? "" : `border-l-4 ${styles.border}`
-              }`}
+              className={`flex flex-col items-start justify-between gap-4 rounded-2xl bg-white p-5 shadow-soft transition hover:shadow-card md:flex-row md:items-center
+              `}
               key={item.id}
             >
               <div className="flex min-w-0 flex-1 items-start gap-4">

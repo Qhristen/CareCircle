@@ -22,7 +22,7 @@ import {
   User,
 } from '../database/entities';
 
-export const giftCircleEntities = [
+export const CareCircleEntities = [
   User,
   Token,
   Category,
@@ -55,8 +55,8 @@ export const typeOrmConfig = (config: ConfigService): TypeOrmModuleOptions => ({
         password: config.get<string>('DB_PASSWORD'),
         database: config.get<string>('DB_NAME'),
       }),
-  entities: giftCircleEntities,
-  migrations: [__dirname + '/../database/migrations/*GiftCircle*{.ts,.js}'],
+  entities: CareCircleEntities,
+  migrations: [__dirname + '/../database/migrations/*CareCircle*{.ts,.js}'],
   synchronize: false,
   logging: config.get<string>('NODE_ENV') === 'development',
   ssl:

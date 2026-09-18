@@ -7,7 +7,7 @@ type OrganizerCirclePageProps = {
 
 export const metadata: Metadata = {
   title: "Organizer Dashboard",
-  description: "Manage contributions, fulfillment, and updates for your GiftCircle.",
+  description: "Manage contributions, fulfillment, and updates for your CareCircle.",
 };
 
 export default async function OrganizerCirclePage({

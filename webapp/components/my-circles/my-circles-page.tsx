@@ -189,7 +189,7 @@ export function MyCirclesPage() {
             Sign in to continue <Icon name="arrow-right" size={17} />
           </Link>
           <p className="mt-4 text-xs text-on-surface-variant">
-            New to GiftCircle? <Link className="font-bold text-primary hover:underline" href="/sign-up">Create an account</Link>
+            New to CareCircle? <Link className="font-bold text-primary hover:underline" href="/sign-up">Create an account</Link>
           </p>
         </section>
       </main>

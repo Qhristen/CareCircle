@@ -1,7 +1,7 @@
 import { baseApi } from "./baseApi";
 import type {
   ApiEnvelope,
-  CircleDetail,
+  Circle,
   CircleDraft,
   CircleOccasion,
   CircleStatus,
@@ -36,7 +36,7 @@ export const circleApi = baseApi.injectEndpoints({
         ...(result?.data.map(({ id }) => ({ type: "Circle" as const, id })) ?? []),
       ],
     }),
-    getCircle: builder.query<ApiEnvelope<CircleDetail>, string>({
+    getCircle: builder.query<ApiEnvelope<Circle>, string>({
       query: (circleId) => `/api/v1/circles/${encodeURIComponent(circleId)}`,
       providesTags: (result) => result ? [{ type: "Circle", id: result?.data?.id }] : [],
     }),

@@ -6,7 +6,7 @@ import { Icon } from "@/components/ui/icon";
 
 export const metadata: Metadata = {
   title: "Create Your Account",
-  description: "Join GiftCircle and start supporting the people and moments that matter.",
+  description: "Join CareCircle and start supporting the people and moments that matter.",
 };
 
 const communityReasons = [
@@ -34,7 +34,7 @@ export default function SignUpPage() {
   return (
     <main className="bg-surface py-8 sm:py-10">
       <div className="mx-auto grid max-w-[1240px] items-start gap-8 px-4 sm:px-6 lg:grid-cols-12">
-        <aside className="space-y-6 lg:col-span-5" aria-label="Why communities choose GiftCircle">
+        <aside className="space-y-6 lg:col-span-5" aria-label="Why communities choose CareCircle">
           <section className="group relative h-[340px] overflow-hidden rounded-xl bg-surface-container shadow-card">
             <Image
               alt="A joyful Nigerian family celebrating together around a festive table"
@@ -54,7 +54,7 @@ export default function SignUpPage() {
                 {Array.from({ length: 5 }, (_, index) => <span aria-hidden="true" key={index}>☆</span>)}
               </div>
               <blockquote className="text-base font-semibold leading-6 drop-shadow-sm sm:text-lg">
-                “GiftCircle turned our baby shower into a seamless village effort. 38 friends chipped in and our nursery was 100% prepared!”
+                “CareCircle turned our baby shower into a seamless village effort. 38 friends chipped in and our nursery was 100% prepared!”
               </blockquote>
               <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs font-semibold">
                 <span className="text-surface-container-high">Amaka K. • Lekki, Lagos</span>
@@ -98,7 +98,7 @@ export default function SignUpPage() {
               <Icon name="arrow-left" size={15} />
               Join the Community
             </div>
-            <h1 className="text-2xl font-extrabold tracking-tight sm:text-[32px] sm:leading-10">Create your GiftCircle account</h1>
+            <h1 className="text-2xl font-extrabold tracking-tight sm:text-[32px] sm:leading-10">Create your CareCircle account</h1>
             <p className="mt-1 text-sm leading-6 text-on-surface-variant sm:text-base">
               Start a circle for a milestone, support a friend in recovery, or chip in easily.
             </p>

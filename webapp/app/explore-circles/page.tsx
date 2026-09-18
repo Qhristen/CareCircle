@@ -4,7 +4,7 @@ import { ExplorePage } from "@/components/explore/explore-page";
 export const metadata: Metadata = {
   title: "Explore Community Circles",
   description:
-    "Discover active GiftCircles for celebrations, care, education, and community support across Nigeria.",
+    "Discover active CareCircles for celebrations, care, education, and community support across Nigeria.",
 };
 
 export default async function ExploreCirclesPage({

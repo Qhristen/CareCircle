@@ -13,7 +13,7 @@ import { logout as clearSession } from "@/lib/store/slices/authSlice";
 const navigation = [
   { label: "Explore Circles", href: "/explore-circles" },
   { label: "How It Works", href: "/explore-circles#how-it-works" },
-  { label: "Active Bundles", href: "/explore-circles#active-circles" },
+  { label: "Active Circles", href: "/explore-circles#active-circles" },
   // { label: "Stories & Impact", href: "/explore-circles#impact" },
 ];
 
@@ -58,11 +58,10 @@ export function SiteHeader() {
               return (
                 <Link
                   aria-current={active ? "page" : undefined}
-                  className={`rounded-full px-4 py-2 text-[13px] font-semibold transition-colors ${
-                    active
+                  className={`rounded-full px-4 py-2 text-[13px] font-semibold transition-colors ${active
                       ? "bg-surface-container text-on-surface"
                       : "text-on-surface-variant hover:bg-surface-container hover:text-on-surface"
-                  }`}
+                    }`}
                   href={item.href}
                   key={item.label}
                 >
@@ -79,7 +78,7 @@ export function SiteHeader() {
             className="relative hidden w-full max-w-[292px] md:block"
           >
             <label className="sr-only" htmlFor="site-search">
-              Search GiftCircle
+              Search CareCircle
             </label>
             <Icon
               className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-outline"

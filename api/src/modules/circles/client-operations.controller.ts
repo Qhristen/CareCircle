@@ -115,7 +115,7 @@ export class OrganizerController {
     response.setHeader('Content-Type', 'text/csv; charset=utf-8');
     response.setHeader(
       'Content-Disposition',
-      `attachment; filename="giftcircle-contributors-${id}.csv"`,
+      `attachment; filename="CareCircle-contributors-${id}.csv"`,
     );
     return csv;
   }

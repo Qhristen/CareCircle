@@ -12,6 +12,7 @@ import {
 } from "react";
 import { Icon, type IconName } from "@/components/ui/icon";
 import { getApiErrorMessage } from "@/lib/api-error";
+import { daysUntil, presentOccasion } from "@/lib/circle-presenters";
 import {
   useAddOrganizerWishlistItemMutation,
   useConfirmOrganizerAddressMutation,
@@ -28,7 +29,7 @@ import {
   type DashboardWishlistItem,
   type OrganizerDashboardData,
 } from "@/lib/organizer-dashboard-data";
-import type { Circle } from "@/lib/explore-data";
+import type { Circle } from "@/types";
 
 type ManagementTab = "contributors" | "wishlist";
 type BroadcastChannel = "whatsapp" | "inApp" | "email";
@@ -64,6 +65,25 @@ function downloadFile(filename: string, content: string, type: string) {
 export function OrganizerDashboard({ circle, dashboardData }: { circle: Circle; dashboardData?: OrganizerDashboardData }) {
   const derivedDashboard = useMemo(() => getOrganizerDashboardData(circle), [circle]);
   const dashboard = dashboardData ?? derivedDashboard;
+  const funding = circle.funding ?? {
+    currency: circle.currency ?? "NGN",
+    goalKobo: Math.round(Number(circle.targetAmount ?? 0) * 100),
+    raisedKobo: Math.round(Number(circle.amountRaised ?? 0) * 100),
+    percent: 0,
+    supporterCount: circle.supporterCount ?? 0,
+    closesAt: circle.deadline ?? "",
+  };
+  const cover = circle.cover ?? {
+    url: circle.coverImageUrl ?? null,
+    alt: circle.coverAlt || circle.title,
+  };
+  const daysLeft = daysUntil(funding.closesAt);
+  const presentation = presentOccasion(circle.occasion);
+  const location = circle.city || circle.countryCode;
+  const supporterCount = funding.supporterCount;
+  const raised = funding.raisedKobo / 100;
+  const goal = funding.goalKobo / 100;
+  const coverUrl = cover.url || "/onbording_image.png";
   const [exportContributions] = useExportOrganizerContributionsMutation();
   const [addWishlistItem] = useAddOrganizerWishlistItemMutation();
   const [sendBroadcastRequest] = useSendOrganizerBroadcastMutation();
@@ -164,8 +184,8 @@ export function OrganizerDashboard({ circle, dashboardData }: { circle: Circle; 
   const selectedChannels = Object.entries(channels)
     .filter(([, enabled]) => enabled)
     .map(([channel]) => channel as BroadcastChannel);
-  const shareUrl = `https://giftcircle.africa/circles/${circle.id}`;
-  const whatsappSnippet = `${circle.title} is at ${naira(circle.raised)} (${dashboard.fundedPercent}%) with ${circle.contributors} generous supporters. ${dashboard.remaining ? `Just ${naira(dashboard.remaining)} remains.` : "The goal is fully funded!"} View progress: ${shareUrl}`;
+  const shareUrl = circle.shareUrl;
+  const whatsappSnippet = `${circle.title} is at ${naira(raised)} (${dashboard.fundedPercent}%) with ${supporterCount} generous supporters. ${dashboard.remaining ? `Just ${naira(dashboard.remaining)} remains.` : "The goal is fully funded!"} View progress: ${shareUrl}`;
   const escrowDigits = dashboard.circleCode.split("-").at(-1) ?? "0000";
 
   const promptOptions = [
@@ -191,11 +211,11 @@ export function OrganizerDashboard({ circle, dashboardData }: { circle: Circle; 
     {
       title: "Funding Campaign",
       badge: dashboard.fundedPercent >= 100 ? "FUNDED" : "IN PROGRESS",
-      description: `${dashboard.fundedPercent}% complete. ${circle.daysLeft === null ? "The campaign is now closed." : `${circle.daysLeft} days remain before auto-lock.`}`,
+      description: `${dashboard.fundedPercent}% complete. ${daysLeft === null ? "The campaign is now closed." : `${daysLeft} days remain before auto-lock.`}`,
       detail:
-        circle.daysLeft === null
+        daysLeft === null
           ? "Campaign locked"
-          : `Target lock: ${circle.daysLeft} days`,
+          : `Target lock: ${daysLeft} days`,
       icon: "alarm" as IconName,
       active: dashboard.fundedPercent < 100,
     },
@@ -216,7 +236,7 @@ export function OrganizerDashboard({ circle, dashboardData }: { circle: Circle; 
     {
       title: "Doorstep Courier",
       badge: "LOGISTICS",
-      description: `Tracked delivery will be dispatched to the verified address in ${circle.city}.`,
+      description: `Tracked delivery will be dispatched to the verified address in ${location}.`,
       detail: addressConfirmed ? "Address verified" : "Address awaiting confirmation",
       icon: "compass" as IconName,
     },
@@ -304,7 +324,7 @@ export function OrganizerDashboard({ circle, dashboardData }: { circle: Circle; 
       await thankContributorRequest({
         circleId: circle.id,
         contributionId: contributor.id,
-        message: `Thank you for supporting ${dashboard.recipientName}'s GiftCircle. Your kindness means so much to us.`,
+        message: `Thank you for supporting ${dashboard.recipientName}'s CareCircle. Your kindness means so much to us.`,
       }).unwrap();
       setThankedContributorIds((current) => new Set(current).add(contributor.id));
       showToast(`Thank-you sent to ${contributor.name}.`);
@@ -315,7 +335,7 @@ export function OrganizerDashboard({ circle, dashboardData }: { circle: Circle; 
 
   function downloadReceipt(contributor: DashboardContributor) {
     const receipt = [
-      "GIFTCIRCLE VERIFIED CONTRIBUTION RECEIPT",
+      "CareCircle VERIFIED CONTRIBUTION RECEIPT",
       `Circle: ${circle.title}`,
       `Circle ID: ${dashboard.circleCode}`,
       `Supporter: ${contributor.name}`,
@@ -398,12 +418,8 @@ export function OrganizerDashboard({ circle, dashboardData }: { circle: Circle; 
             </div>
             <div className="flex flex-wrap items-baseline gap-2 pt-1">
               <h1 className="text-[30px] font-bold leading-10 tracking-[-0.01em] sm:text-[32px]">
-                {circle.title} {circle.categoryEmoji}
+                {circle.title} {presentation.emoji}
               </h1>
-              <span className="inline-flex items-center gap-1 rounded-full bg-tertiary-fixed/40 px-2.5 py-0.5 text-[13px] font-semibold leading-[18px] text-tertiary">
-                <span aria-hidden="true">{circle.categoryEmoji}</span>
-                {circle.categoryLabel}
-              </span>
             </div>
             <p className="max-w-2xl text-on-surface-variant">{dashboard.summary}</p>
           </div>
@@ -415,18 +431,18 @@ export function OrganizerDashboard({ circle, dashboardData }: { circle: Circle; 
                 {dashboard.fundedPercent}% Funded
               </span>
               <span className="text-xs leading-[18px] text-outline">
-                ({naira(circle.raised)} of {naira(circle.goal)})
+                ({naira(raised)} of {naira(goal)})
               </span>
             </div>
             <div className="flex flex-wrap items-center gap-1 text-[11px] font-bold leading-4">
               <Icon className="text-tertiary" name="alarm" size={16} />
               <span>
-                {circle.daysLeft === null
+                {daysLeft === null
                   ? "Circle funding has closed"
-                  : `${circle.daysLeft} days remaining`}
+                  : `${daysLeft} days remaining`}
               </span>
               <span className="font-normal text-outline">
-                {circle.daysLeft === null ? "for fulfillment" : "until auto-lock"}
+                {daysLeft === null ? "for fulfillment" : "until auto-lock"}
               </span>
             </div>
             <div className="h-2 w-full overflow-hidden rounded-full bg-surface-container-highest lg:w-56">
@@ -457,14 +473,14 @@ export function OrganizerDashboard({ circle, dashboardData }: { circle: Circle; 
             >
               <Icon name="share" size={16} /> WhatsApp Reminder Blast
             </button>
-            <button
+            {/* <button
               className={`${buttonBase} bg-white px-4 py-2 text-on-surface shadow-sm hover:bg-surface-container-high`}
               onClick={downloadCsv}
               type="button"
             >
               <Icon className="text-primary" name="save" size={16} />
-              Download CSV ({circle.contributors})
-            </button>
+              Download CSV ({supporterCount})
+            </button> */}
           </div>
           <div className="flex items-center gap-2">
             <Link
@@ -490,8 +506,8 @@ export function OrganizerDashboard({ circle, dashboardData }: { circle: Circle; 
         >
           <KpiCard
             accent="primary"
-            detail={`${circle.contributors} contributions (${bankPercent}% bank rails)`}
-            footer={`Goal: ${naira(circle.goal)}`}
+            detail={`${supporterCount} contributions (${bankPercent}% bank rails)`}
+            footer={`Goal: ${naira(goal)}`}
             footerValue={
               dashboard.remaining
                 ? `${naira(dashboard.remaining)} left`
@@ -499,13 +515,13 @@ export function OrganizerDashboard({ circle, dashboardData }: { circle: Circle; 
             }
             icon="gift"
             title="Total Escrow Vault"
-            value={naira(circle.raised)}
+            value={naira(raised)}
           />
           <KpiCard
             accent="secondary"
             detail={`Range: ${contributionRange}`}
             footer="Community participation"
-            footerValue={circle.contributors > 30 ? "Healthy mix" : "Growing"}
+            footerValue={supporterCount > 30 ? "Healthy mix" : "Growing"}
             icon="users"
             title="Average Contribution"
             value={naira(dashboard.averageContribution)}
@@ -547,7 +563,7 @@ export function OrganizerDashboard({ circle, dashboardData }: { circle: Circle; 
               </div>
               <p className="text-xs leading-[18px] text-on-surface-variant">
                 Live transparent pipeline from group escrow to {dashboard.recipientName}
-                {` in ${circle.city}`}
+                {` in ${location}`}
               </p>
             </div>
             <div className="inline-flex items-center gap-2 rounded-full bg-secondary-fixed/40 px-3 py-1 text-[13px] font-semibold leading-[18px] text-secondary">
@@ -611,10 +627,10 @@ export function OrganizerDashboard({ circle, dashboardData }: { circle: Circle; 
           <div className="flex flex-col items-center justify-between gap-4 rounded-xl bg-surface-container-low p-4 md:flex-row">
             <div className="flex min-w-0 items-center gap-4">
               <Image
-                alt={circle.imageAlt}
+                alt={cover.alt}
                 className="h-16 w-16 shrink-0 rounded-lg bg-tertiary-fixed object-cover shadow-sm"
                 height={64}
-                src={circle.image}
+                src={coverUrl}
                 width={64}
               />
               <div className="min-w-0">
@@ -647,7 +663,7 @@ export function OrganizerDashboard({ circle, dashboardData }: { circle: Circle; 
                   try {
                     await confirmAddress(circle.id).unwrap();
                     setAddressConfirmed(true);
-                    showToast(`Delivery address in ${circle.city} confirmed.`);
+                    showToast(`Delivery address in ${location} confirmed.`);
                   } catch (error) {
                     showToast(getApiErrorMessage(error, "Save a delivery address before confirming it."));
                   }
@@ -672,7 +688,7 @@ export function OrganizerDashboard({ circle, dashboardData }: { circle: Circle; 
                   active={activeTab === "contributors"}
                   controls="contributors-panel"
                   icon="users"
-                  label={`Contributor Roster (${circle.contributors})`}
+                  label={`Contributor Roster (${supporterCount})`}
                   onClick={() => setActiveTab("contributors")}
                 />
                 <TabButton
@@ -924,7 +940,7 @@ export function OrganizerDashboard({ circle, dashboardData }: { circle: Circle; 
                     Broadcaster Tool
                   </h3>
                   <p className="text-xs leading-[18px] text-on-surface-variant">
-                    Ping all {circle.contributors} circle contributors at once
+                    Ping all {supporterCount} circle contributors at once
                   </p>
                 </div>
               </div>
@@ -956,7 +972,7 @@ export function OrganizerDashboard({ circle, dashboardData }: { circle: Circle; 
                   className="w-full resize-none rounded-xl bg-surface-container-low p-2 text-xs leading-[18px] outline-none focus:bg-white focus:shadow-inner"
                   maxLength={280}
                   onChange={(event) => setBroadcast(event.target.value)}
-                  placeholder={`Type your broadcast to all ${circle.contributors} supporters...`}
+                  placeholder={`Type your broadcast to all ${supporterCount} supporters...`}
                   rows={4}
                   value={broadcast}
                 />
@@ -973,12 +989,12 @@ export function OrganizerDashboard({ circle, dashboardData }: { circle: Circle; 
                 />
                 <ChannelCheckbox
                   checked={channels.inApp}
-                  label="GiftCircle In-App Feed Notification"
+                  label="CareCircle In-App Feed Notification"
                   onChange={() => toggleChannel("inApp")}
                 />
                 <ChannelCheckbox
                   checked={channels.email}
-                  label={`Instant Email Notification (${circle.contributors} addresses)`}
+                  label={`Instant Email Notification (${supporterCount} addresses)`}
                   onChange={() => toggleChannel("email")}
                 />
               </fieldset>
@@ -1004,8 +1020,8 @@ export function OrganizerDashboard({ circle, dashboardData }: { circle: Circle; 
                   {sendState === "sending"
                     ? "Dispatching..."
                     : sendState === "sent"
-                      ? `Dispatched to ${circle.contributors} supporters!`
-                      : `Send Broadcast to ${circle.contributors} Supporters`}
+                      ? `Dispatched to ${supporterCount} supporters!`
+                      : `Send Broadcast to ${supporterCount} Supporters`}
                 </button>
                 {sendState === "sent" && (
                   <div className="rounded-lg bg-secondary-fixed p-2 text-center text-[11px] font-semibold leading-4 text-secondary">
@@ -1019,10 +1035,10 @@ export function OrganizerDashboard({ circle, dashboardData }: { circle: Circle; 
             <section className="flex items-center justify-between rounded-xl bg-white p-4 shadow-sm">
               <div className="flex items-center gap-2">
                 <Image
-                  alt={circle.imageAlt}
+                  alt={cover.alt}
                   className="h-11 w-11 rounded-full bg-primary-fixed object-cover shadow-sm"
                   height={44}
-                  src={circle.image}
+                  src={coverUrl}
                   width={44}
                 />
                 <div>
@@ -1030,7 +1046,7 @@ export function OrganizerDashboard({ circle, dashboardData }: { circle: Circle; 
                     {dashboard.recipientName}
                   </div>
                   <div className="text-xs leading-[18px] text-outline">
-                    Recipient • {circle.city}
+                    Recipient • {location}
                   </div>
                 </div>
               </div>
@@ -1102,15 +1118,15 @@ export function OrganizerDashboard({ circle, dashboardData }: { circle: Circle; 
       >
         <div className="relative h-52 overflow-hidden rounded-xl bg-tertiary-fixed">
           <Image
-            alt={circle.imageAlt}
+            alt={cover.alt}
             className="object-cover"
             fill
             sizes="(max-width: 640px) 90vw, 520px"
-            src={circle.image}
+            src={coverUrl}
           />
           <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/70 to-transparent p-5 text-white">
             <div>
-              <p className="text-xs font-bold uppercase tracking-wider">GiftCircle</p>
+              <p className="text-xs font-bold uppercase tracking-wider">CareCircle</p>
               <h3 className="text-xl font-bold">{dashboard.bundleName}</h3>
             </div>
           </div>

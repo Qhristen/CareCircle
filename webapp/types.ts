@@ -39,40 +39,93 @@ export type CursorMeta = {
   hasMore: boolean;
 };
 
-export type ExploreCircle = {
+export type CircleWishlistItem = {
+  id: string;
+  emoji: string | null;
+  name: string;
+  description: string | null;
+  targetAmountKobo: number;
+  fundedAmountKobo: number;
+  remainingAmountKobo: number;
+  status: "open" | "partially_funded" | "funded" | string;
+  suggestedContributionKobo: number;
+};
+
+export type Circle = {
   id: string;
   slug: string;
   title: string;
   occasion: string;
-  city: string | null;
-  countryCode: string;
-  organizer: {
+  status: string;
+
+  city?: string | null;
+  countryCode?: string | null;
+  privacy?: "link" | "invite" | "public" | string;
+  storyMarkdown?: string | null;
+  recipient?: {
+    displayName: string;
+    city: string | null;
+    countryCode: string;
+  };
+  recipientName?: string;
+  recipientCity?: string | null;
+  recipientCountryCode?: string | null;
+  organizer?: {
+    id?: string;
     displayName: string;
     verified: boolean;
   };
-  cover: {
+  cover?: {
     url: string | null;
     alt: string;
   };
-  wishlistPreview: Array<{
+  coverImageUrl?: string | null;
+  coverAlt?: string | null;
+  wishlistPreview?: Array<{
     id: string;
     name: string;
     emoji: string | null;
   }>;
-  funding: {
+  wishlist?: CircleWishlistItem[];
+  items?: Array<{
+    id: string;
+    emoji: string | null;
+    name: string;
+    description: string | null;
+    targetAmount: number | string;
+    fundedAmount: number | string;
+    status: string;
+  }>;
+  funding?: {
     currency: string;
     goalKobo: number;
     raisedKobo: number;
     percent: number;
     supporterCount: number;
     closesAt: string;
+    acceptsContributions?: boolean;
   };
-  status: string;
-  shareUrl: string;
+  targetAmount?: number | string;
+  amountRaised?: number | string;
+  currency?: string;
+  supporterCount?: number;
+  deadline?: string;
+  fulfillment?: {
+    stage: string;
+    publicLabel: string;
+  };
+  viewer?: {
+    canView: boolean;
+    canContribute: boolean;
+    canManage: boolean;
+  };
+  shareUrl?: string;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type ExploreCirclesResponse = {
-  data: ExploreCircle[];
+  data: Circle[];
   meta: CursorMeta;
 };
 
@@ -129,62 +182,6 @@ export type PageMeta = {
 export type MyCirclesResponse = {
   data: MyCircle[];
   meta: PageMeta;
-};
-
-export type CircleWishlistItem = {
-  id: string;
-  emoji: string | null;
-  name: string;
-  description: string | null;
-  targetAmountKobo: number;
-  fundedAmountKobo: number;
-  remainingAmountKobo: number;
-  status: "open" | "partially_funded" | "funded" | string;
-  suggestedContributionKobo: number;
-};
-
-export type CircleDetail = {
-  id: string;
-  slug: string;
-  status: string;
-  privacy: "link" | "invite" | "public";
-  occasion: string;
-  title: string;
-  storyMarkdown: string | null;
-  recipient: {
-    displayName: string;
-    city: string | null;
-    countryCode: string;
-  };
-  organizer: {
-    id: string;
-    displayName: string;
-    verified: boolean;
-  };
-  cover: {
-    url: string | null;
-    alt: string;
-  };
-  funding: {
-    currency: string;
-    goalKobo: number;
-    raisedKobo: number;
-    percent: number;
-    supporterCount: number;
-    closesAt: string;
-    acceptsContributions: boolean;
-  };
-  wishlist: CircleWishlistItem[];
-  fulfillment: {
-    stage: string;
-    publicLabel: string;
-  };
-  viewer: {
-    canView: boolean;
-    canContribute: boolean;
-    canManage: boolean;
-  };
-  updatedAt: string;
 };
 
 export type PublicContribution = {
@@ -332,32 +329,6 @@ export type OrganizerDashboardResponse = ApiEnvelope<{
   };
   updatedAt: string;
 }>;
-
-export type ManagedCircle = {
-  id: string;
-  slug: string;
-  title: string;
-  occasion: string;
-  recipientName: string;
-  recipientCity?: string | null;
-  coverImageUrl?: string | null;
-  privacy: string;
-  status: string;
-  targetAmount: number;
-  amountRaised: number;
-  supporterCount?: number;
-  deadline: string;
-  createdAt: string;
-  items: Array<{
-    id: string;
-    emoji: string | null;
-    name: string;
-    description: string | null;
-    targetAmount: number | string;
-    fundedAmount: number | string;
-    status: string;
-  }>;
-};
 
 export type OrganizerContribution = {
   id: string;

@@ -6,7 +6,7 @@ type CirclePageProps = {
 };
 
 export const metadata: Metadata = {
-  title: "Support a GiftCircle",
+  title: "Support a CareCircle",
   description: "View this circle's wishlist and contribute securely.",
 };
 

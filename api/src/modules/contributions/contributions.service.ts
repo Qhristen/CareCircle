@@ -476,8 +476,8 @@ export class ContributionsService {
               ? NotificationType.GOAL_REACHED
               : NotificationType.CONTRIBUTION_RECEIVED,
             title: goalReached
-              ? 'Your GiftCircle reached its goal'
-              : 'New GiftCircle contribution',
+              ? 'Your CareCircle reached its goal'
+              : 'New CareCircle contribution',
             message: `${circle.currency} ${contribution.amount} was added to ${circle.title}.`,
             data: { circleId: circle.id, contributionId: contribution.id },
           }),
@@ -610,7 +610,7 @@ export class ContributionsService {
     const anonymous = !entry.showName;
     const displayName = anonymous
       ? 'Anonymous Supporter'
-      : (entry.contributor?.name ?? entry.guestName ?? 'GiftCircle Supporter');
+      : (entry.contributor?.name ?? entry.guestName ?? 'CareCircle Supporter');
     return {
       id: entry.id,
       displayName,
@@ -674,7 +674,7 @@ export class ContributionsService {
         .replaceAll('(', '\\(')
         .replaceAll(')', '\\)');
     const lines = [
-      'GiftCircle Contribution Receipt',
+      'CareCircle Contribution Receipt',
       `Reference: ${contribution.paymentReference}`,
       `Circle: ${contribution.circle.title}`,
       `Amount: ${contribution.currency} ${contribution.amount}`,

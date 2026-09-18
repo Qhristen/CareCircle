@@ -1,6 +1,6 @@
 import { baseApi } from "./baseApi";
 import type {
-  ManagedCircle,
+  Circle,
   OrganizerContributionsResponse,
   OrganizerDashboardResponse,
 } from "@/types";
@@ -11,7 +11,7 @@ export const organizerApi = baseApi.injectEndpoints({
       query: (circleId) => `/api/v1/organizer/circles/${circleId}/dashboard`,
       providesTags: (_result, _error, circleId) => [{ type: "Circle", id: circleId }],
     }),
-    getManagedCircle: builder.query<ManagedCircle, string>({
+    getManagedCircle: builder.query<Circle, string>({
       query: (circleId) => `/api/v1/circles/${circleId}`,
       providesTags: (_result, _error, circleId) => [{ type: "Circle", id: circleId }],
     }),

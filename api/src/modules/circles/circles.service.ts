@@ -331,11 +331,19 @@ export class CirclesService {
     if (query.search) where.title = ILike(`%${query.search}%`);
     const [data, total] = await this.circles.findAndCount({
       where,
-      relations: { items: true, fulfillment: true },
+      relations: {
+        organizer: true,
+        items: true,
+        updates: { author: true },
+        activities: true,
+        fulfillment: true,
+        contributions: { contributor: true, giftItem: true },
+      },
       order: { createdAt: 'DESC' },
       skip: (query.page - 1) * query.limit,
       take: query.limit,
     });
+
     return this.paginated(
       data.map((circle) => this.withProgress(circle)),
       total,
@@ -811,7 +819,7 @@ export class CirclesService {
           invitedUser.id,
           NotificationType.INVITATION,
           `You're invited to ${circle.title}`,
-          'An organizer invited you to join a GiftCircle.',
+          'An organizer invited you to join a CareCircle.',
           { circleId, invitationCode: created?.code },
         );
       }
@@ -1049,7 +1057,7 @@ export class CirclesService {
     await this.notifyContributors(
       circleId,
       'Gift received',
-      `${circle.recipientName} confirmed receipt of the GiftCircle.`,
+      `${circle.recipientName} confirmed receipt of the CareCircle.`,
       NotificationType.DELIVERY,
     );
     this.socket.emitFulfillmentUpdated(circleId, fulfillment);
@@ -1285,7 +1293,7 @@ export class CirclesService {
 
   private publicContribution(entry: Contribution) {
     const name =
-      entry.contributor?.name ?? entry.guestName ?? 'GiftCircle member';
+      entry.contributor?.name ?? entry.guestName ?? 'CareCircle member';
     return {
       id: entry.id,
       contributorName: entry.showName ? name : 'Anonymous',
@@ -1321,6 +1329,7 @@ export class CirclesService {
     const response: Record<string, unknown> = { ...data };
     delete response.coverAssetId;
     delete response.recipientTokenHash;
+
     return {
       ...response,
       items: items?.map((item) => this.circleItem(item)),
@@ -1394,7 +1403,7 @@ export class CirclesService {
       city: circle.recipientCity ?? circle.deliveryAddress?.city ?? null,
       countryCode: circle.recipientCountryCode ?? 'NG',
       organizer: {
-        displayName: circle.organizer?.name ?? 'GiftCircle Organizer',
+        displayName: circle.organizer?.name ?? 'CareCircle Organizer',
         verified: Boolean(circle.organizer && !circle.organizer.isSuspended),
       },
       cover: {

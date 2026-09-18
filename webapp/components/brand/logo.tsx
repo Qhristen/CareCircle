@@ -8,7 +8,7 @@ type LogoProps = {
 export function Logo({ className = "" }: LogoProps) {
   return (
     <Link
-      aria-label="GiftCircle home"
+      aria-label="CareCircle home"
       className={`inline-flex shrink-0 items-center gap-2 ${className}`}
       href="/"
     >
@@ -30,7 +30,7 @@ export function Logo({ className = "" }: LogoProps) {
         />
       </svg> */}
 
-      <Image alt="GiftCircle Brand Logo" className="h-10 w-auto object-contain" width={200} height={100} src="/logo.png" />
+      <Image alt="CareCircle Brand Logo" className="h-10 w-auto object-contain" width={200} height={100} src="/logo.png" />
     </Link>
   );
 }

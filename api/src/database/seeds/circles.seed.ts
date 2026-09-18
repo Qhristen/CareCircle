@@ -10,7 +10,7 @@ import {
 } from '../enums';
 
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
-const SEED_ORGANIZER_EMAIL = 'community-seeds@giftcircle.test';
+const SEED_ORGANIZER_EMAIL = 'community-seeds@CareCircle.test';
 
 export interface CircleSeedDefinition {
   title: string;
@@ -845,7 +845,7 @@ export async function seedCircles(dataSource = AppDataSource): Promise<number> {
       const users = manager.getRepository(User);
       await users.upsert(
         {
-          name: 'GiftCircle',
+          name: 'CareCircle',
           email: SEED_ORGANIZER_EMAIL,
           passwordHash: null,
           googleId: null,

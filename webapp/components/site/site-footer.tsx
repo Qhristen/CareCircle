@@ -97,7 +97,7 @@ export function SiteFooter() {
             </span>
           </div>
           <div className="flex shrink-0 items-center gap-4">
-            <span>© {new Date().getFullYear()} GiftCircle Inc.</span>
+            <span>© {new Date().getFullYear()} CareCircle Inc.</span>
             <Link className="hover:text-on-surface" href="/">
               Privacy
             </Link>

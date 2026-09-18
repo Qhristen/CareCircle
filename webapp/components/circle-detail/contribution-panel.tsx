@@ -62,7 +62,7 @@ export function ContributionPanel({
   const [error, setError] = useState("");
   const percentage = Math.min(Math.round((raised / target) * 100), 100);
   const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(
-    `Join us in supporting ${circleTitle}. Contribute to this GiftCircle: ${shareUrl}`,
+    `Join us in supporting ${circleTitle}. Contribute to this CareCircle: ${shareUrl}`,
   )}`;
 
   return (
@@ -114,7 +114,7 @@ export function ContributionPanel({
             }
           }}
         >
-          
+
           <div>
             <label className="mb-2 block text-sm font-bold text-on-surface" htmlFor="contribution-amount">
               Select Amount to Chip In
@@ -123,8 +123,8 @@ export function ContributionPanel({
               {[2000, 5000, 10000, 25000].map((preset) => (
                 <button
                   className={`rounded-lg py-2 text-xs font-bold transition ${amount === preset
-                      ? "bg-primary text-white shadow-sm"
-                      : "bg-surface-container-low text-on-surface hover:bg-surface-container"
+                    ? "bg-primary text-white shadow-sm"
+                    : "bg-surface-container-low text-on-surface hover:bg-surface-container"
                     }`}
                   key={preset}
                   onClick={() => onAmountChange(preset)}
@@ -167,7 +167,7 @@ export function ContributionPanel({
             </select>
           </label>
 
-     
+
 
           <label className="block text-xs font-semibold text-on-surface-variant">
             <span className="mb-1 block">Your Note or Prayer for {beneficiaryName}</span>

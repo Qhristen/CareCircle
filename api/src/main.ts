@@ -57,10 +57,10 @@ async function bootstrap() {
   app.enableShutdownHooks();
 
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('GiftCircle API')
+    .setTitle('CareCircle API')
     .setDescription('Community-powered collective gifting and support API')
     .setVersion('1.0')
-    .addTag('giftcircle')
+    .addTag('CareCircle')
     .addBearerAuth(
       { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
       'JWT-auth',
@@ -77,7 +77,7 @@ async function bootstrap() {
     SwaggerModule.createDocument(app, swaggerConfig),
   );
   await app.listen(config.port);
-  console.log(`GiftCircle API: http://localhost:${config.port}/api/v1`);
+  console.log(`CareCircle API: http://localhost:${config.port}/api/v1`);
 }
 
 void bootstrap();

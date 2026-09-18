@@ -10,37 +10,37 @@ const steps: Array<{
   numberStyle: string;
   iconStyle: string;
 }> = [
-  {
-    number: 1,
-    title: "Start a Circle in 60s",
-    description:
-      "Set up an occasion, add specific wishlist items, or choose a flexible mutual-aid milestone in Naira.",
-    detail: "Thoughtful templates for birthdays, bridal, and care funds.",
-    icon: "book",
-    numberStyle: "bg-primary-fixed text-on-primary-fixed",
-    iconStyle: "text-primary",
-  },
-  {
-    number: 2,
-    title: "Share & Chip In Flexibly",
-    description:
-      "Share one beautiful link on WhatsApp, social media, or email. Anyone can chip in",
-    detail: "Card, transfer, and USSD payments on secure settlement rails.",
-    icon: "shield",
-    numberStyle: "bg-secondary-fixed text-on-secondary-fixed",
-    iconStyle: "text-secondary",
-  },
-  {
-    number: 3,
-    title: "Delivery & Keepsake Card",
-    description:
-      "Funds clear to verified fulfillment or the recipient, alongside a scrapbook of everyone’s warm blessings.",
-    detail: "99.4% delivery verification with transparent community receipts.",
-    icon: "heart",
-    numberStyle: "bg-tertiary-fixed text-on-tertiary-fixed",
-    iconStyle: "text-tertiary",
-  },
-];
+    {
+      number: 1,
+      title: "Start a Circle in 60s",
+      description:
+        "Set up an occasion, add specific wishlist items, or choose a flexible mutual-aid milestone in Naira.",
+      detail: "Thoughtful templates for birthdays, bridal, and care funds.",
+      icon: "book",
+      numberStyle: "bg-primary-fixed text-on-primary-fixed",
+      iconStyle: "text-primary",
+    },
+    {
+      number: 2,
+      title: "Share & Chip In Flexibly",
+      description:
+        "Share one beautiful link on WhatsApp, social media, or email. Anyone can chip in",
+      detail: "Card, transfer, and USSD payments on secure settlement rails.",
+      icon: "shield",
+      numberStyle: "bg-secondary-fixed text-on-secondary-fixed",
+      iconStyle: "text-secondary",
+    },
+    {
+      number: 3,
+      title: "Delivery & Keepsake Card",
+      description:
+        "Funds clear to verified fulfillment or the recipient, alongside a scrapbook of everyone’s warm blessings.",
+      detail: "99.4% delivery verification with transparent community receipts.",
+      icon: "heart",
+      numberStyle: "bg-tertiary-fixed text-on-tertiary-fixed",
+      iconStyle: "text-tertiary",
+    },
+  ];
 
 export function HowItWorks() {
   return (
@@ -58,7 +58,7 @@ export function HowItWorks() {
             className="text-[28px] font-extrabold tracking-tight text-on-surface sm:text-[32px]"
             id="how-it-works-heading"
           >
-            How GiftCircle Works
+            How CareCircle Works
           </h2>
           <p className="mt-2 text-sm leading-6 text-on-surface-variant">
             Replace fragmented group transfers, awkward reminders, and lost
@@ -104,7 +104,7 @@ export function HowItWorks() {
             className="shrink-0 rounded-full bg-white px-7 py-3.5 text-[13px] font-extrabold text-primary transition hover:bg-surface active:scale-[0.98]"
             href="/create-circle"
           >
-            Start a GiftCircle in 60 Seconds
+            Start a CareCircle in 60 Seconds
           </Link>
         </div>
       </div>

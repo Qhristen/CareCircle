@@ -140,7 +140,7 @@ export class ContributionsController {
     response.setHeader('Content-Type', 'application/pdf');
     response.setHeader(
       'Content-Disposition',
-      `attachment; filename="giftcircle-receipt-${id}.pdf"`,
+      `attachment; filename="CareCircle-receipt-${id}.pdf"`,
     );
     return new StreamableFile(pdf);
   }

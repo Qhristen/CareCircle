@@ -4,14 +4,14 @@ import Link from "next/link";
 import { OrganizerDashboard } from "@/components/organizer/organizer-dashboard";
 import { Icon } from "@/components/ui/icon";
 import { getApiErrorMessage } from "@/lib/api-error";
-import { daysUntil, presentOccasion } from "@/lib/circle-presenters";
+import { presentOccasion } from "@/lib/circle-presenters";
 import {
   useGetManagedCircleQuery,
   useGetOrganizerContributionsQuery,
   useGetOrganizerDashboardQuery,
 } from "@/lib/store/api/organizerApi";
 import type { DashboardContributor, OrganizerDashboardData } from "@/lib/organizer-dashboard-data";
-import type { Circle } from "@/lib/explore-data";
+import type { Circle } from "@/types";
 
 function contributorInitials(name: string) {
   return name.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]).join("").toUpperCase() || "GC";
@@ -34,26 +34,45 @@ export function OrganizerDashboardRoute({ circleId }: { circleId: string }) {
 
   const managed = circleQuery.data;
   const live = dashboardQuery.data.data;
-  const presentation = presentOccasion(managed.occasion.toLowerCase().replaceAll("_", "-"));
-  const city = managed.recipientCity || "Nigeria";
+  const occasion = managed.occasion.toLowerCase().replaceAll("_", "-");
+  const presentation = presentOccasion(occasion);
+  const managedItems = managed.items ?? [];
+  const recipientName =
+    managed.recipientName ?? managed.recipient?.displayName ?? managed.title;
+  const deadline = managed.deadline ?? managed.funding?.closesAt ?? "";
   const circle: Circle = {
     id: managed.id,
+    slug: managed.slug,
     title: managed.title,
-    category: presentation.category,
-    categoryLabel: presentation.label,
-    categoryEmoji: presentation.emoji,
-    city,
-    organizer: "You",
-    image: managed.coverImageUrl || "/onbording_image.png",
-    imageAlt: `${managed.title} cover`,
-    wishlist: managed.items.map((item) => ({ label: item.name, emoji: item.emoji || "🎁" })),
-    raised: live.metrics.raisedKobo / 100,
-    goal: live.metrics.goalKobo / 100,
-    contributors: live.metrics.supporterCount,
-    daysLeft: daysUntil(managed.deadline),
-    actionLabel: "View circle",
-    accent: presentation.accent,
-    createdOrder: 1,
+    occasion,
+    city: managed.recipientCity ?? managed.recipient?.city ?? null,
+    countryCode:
+      managed.recipientCountryCode ?? managed.recipient?.countryCode ?? "NG",
+    organizer: {
+      displayName: "You",
+      verified: true,
+    },
+    cover: {
+      url: managed.coverImageUrl ?? managed.cover?.url ?? null,
+      alt: managed.coverAlt || managed.cover?.alt || `${managed.title} cover`,
+    },
+    wishlistPreview: managedItems.slice(0, 3).map((item) => ({
+      id: item.id,
+      name: item.name,
+      emoji: item.emoji,
+    })),
+    funding: {
+      currency: managed.currency ?? live.metrics.currency,
+      goalKobo: live.metrics.goalKobo,
+      raisedKobo: live.metrics.raisedKobo,
+      percent: live.metrics.fundedPercent,
+      supporterCount: live.metrics.supporterCount,
+      closesAt: deadline,
+    },
+    status: managed.status,
+    shareUrl:
+      managed.shareUrl ??
+      `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/circles/${managed.slug}`,
   };
 
   const accents: DashboardContributor["accent"][] = ["primary", "secondary", "tertiary", "neutral"];
@@ -69,7 +88,7 @@ export function OrganizerDashboardRoute({ circleId }: { circleId: string }) {
     accent: accents[index % accents.length],
     method: entry.paymentMethod === "bank_transfer" ? "Bank Transfer" : "Card",
   }));
-  const wishlist = managed.items.map((item) => ({
+  const wishlist = managedItems.map((item) => ({
     id: item.id,
     emoji: item.emoji || "🎁",
     name: item.name,
@@ -80,16 +99,20 @@ export function OrganizerDashboardRoute({ circleId }: { circleId: string }) {
   }));
   const dashboardData: OrganizerDashboardData = {
     circleCode: `GC-${managed.id.slice(0, 8).toUpperCase()}`,
-    createdAt: new Date(managed.createdAt).toLocaleDateString("en-NG", { dateStyle: "medium" }),
-    recipientName: managed.recipientName,
-    summary: `Managing ${presentation.label.toLowerCase()} support for ${managed.recipientName} with transparent contributions and fulfillment.`,
+    createdAt: managed.createdAt
+      ? new Date(managed.createdAt).toLocaleDateString("en-NG", {
+          dateStyle: "medium",
+        })
+      : "Recently created",
+    recipientName,
+    summary: `Managing ${presentation.label.toLowerCase()} support for ${recipientName} with transparent contributions and fulfillment.`,
     fundedPercent: live.metrics.fundedPercent,
     remaining: live.metrics.remainingKobo / 100,
     averageContribution: live.metrics.averageContributionKobo / 100,
     claimedItems: live.metrics.claimedItemCount,
     blessingCount: live.metrics.blessingCount,
     vendorName: live.fulfillment.vendor.name,
-    bundleName: `${managed.recipientName}'s ${presentation.label} Bundle`,
+    bundleName: `${recipientName}'s ${presentation.label} Bundle`,
     contributors,
     wishlist,
   };

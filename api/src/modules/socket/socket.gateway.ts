@@ -47,7 +47,7 @@ interface SocketJwtPayload {
 interface SocketData {
   user?: SocketUser;
 }
-type GiftCircleSocket = Socket<
+type CareCircleSocket = Socket<
   Record<string, never>,
   Record<string, never>,
   Record<string, never>,
@@ -88,10 +88,10 @@ export class SocketGateway
   ) {}
 
   afterInit() {
-    this.logger.log('GiftCircle socket gateway initialized');
+    this.logger.log('CareCircle socket gateway initialized');
   }
 
-  async handleConnection(client: GiftCircleSocket) {
+  async handleConnection(client: CareCircleSocket) {
     try {
       const token = this.extractToken(client);
       if (!token) throw new UnauthorizedException('No access token provided');
@@ -111,7 +111,7 @@ export class SocketGateway
     }
   }
 
-  handleDisconnect(client: GiftCircleSocket) {
+  handleDisconnect(client: CareCircleSocket) {
     if (client.data.user)
       this.logger.debug(`Socket disconnected for user ${client.data.user.id}`);
   }
@@ -119,7 +119,7 @@ export class SocketGateway
   @SubscribeMessage('circle:join')
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
   async joinCircle(
-    @ConnectedSocket() client: GiftCircleSocket,
+    @ConnectedSocket() client: CareCircleSocket,
     @MessageBody() dto: JoinCircleRoomDto,
   ) {
     const user = this.requireUser(client);
@@ -132,7 +132,7 @@ export class SocketGateway
   @SubscribeMessage('circle:leave')
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
   async leaveCircle(
-    @ConnectedSocket() client: GiftCircleSocket,
+    @ConnectedSocket() client: CareCircleSocket,
     @MessageBody() dto: LeaveCircleRoomDto,
   ) {
     await client.leave(this.circleRoom(dto.circleId));
@@ -156,7 +156,7 @@ export class SocketGateway
     this.server?.to(this.userRoom(userId)).emit('notification:new', payload);
   }
 
-  private extractToken(client: GiftCircleSocket) {
+  private extractToken(client: CareCircleSocket) {
     const auth: unknown = client.handshake.auth;
     const authToken =
       auth && typeof auth === 'object'
@@ -170,7 +170,7 @@ export class SocketGateway
       : undefined;
   }
 
-  private requireUser(client: GiftCircleSocket) {
+  private requireUser(client: CareCircleSocket) {
     if (!client.data.user) throw new WsException('Authentication required');
     return client.data.user;
   }

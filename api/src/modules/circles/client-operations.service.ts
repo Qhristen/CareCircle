@@ -163,7 +163,7 @@ export class ClientOperationsService {
             fulfillment?.purchaseOrderStatus ?? 'not_requested',
           vendor: {
             id: 'verified-vendor',
-            name: 'GiftCircle Verified Vendor',
+            name: 'CareCircle Verified Vendor',
           },
         },
         updatedAt: circle.updatedAt,

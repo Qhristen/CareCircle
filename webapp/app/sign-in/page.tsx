@@ -6,14 +6,14 @@ import { Icon } from "@/components/ui/icon";
 
 export const metadata: Metadata = {
   title: "Sign In",
-  description: "Sign in to manage your GiftCircle account, circles, and contributions.",
+  description: "Sign in to manage your CareCircle account, circles, and contributions.",
 };
 
 export default function SignInPage() {
   return (
     <main className="bg-surface py-8 sm:py-10">
       <div className="mx-auto grid max-w-[1240px] items-stretch gap-8 px-4 sm:px-6 lg:grid-cols-12">
-        <aside className="relative min-h-[620px] overflow-hidden rounded-xl p-6 shadow-card sm:p-8 lg:col-span-5" aria-label="GiftCircle community impact">
+        <aside className="relative min-h-[620px] overflow-hidden rounded-xl p-6 shadow-card sm:p-8 lg:col-span-5" aria-label="CareCircle community impact">
           <Image
             alt="A multigenerational African family and close friends sharing a joyful meal"
             className="object-cover"

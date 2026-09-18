@@ -18,7 +18,7 @@ export class AppController {
         required: ['status', 'service', 'version', 'timestamp'],
         properties: {
           status: { type: 'string', example: 'ok' },
-          service: { type: 'string', example: 'GiftCircle API' },
+          service: { type: 'string', example: 'CareCircle API' },
           version: { type: 'string', example: '1.0.0' },
           timestamp: { type: 'string', format: 'date-time' },
         },
@@ -28,7 +28,7 @@ export class AppController {
   health() {
     return {
       status: 'ok',
-      service: 'GiftCircle API',
+      service: 'CareCircle API',
       version: '1.0.0',
       timestamp: new Date().toISOString(),
     };

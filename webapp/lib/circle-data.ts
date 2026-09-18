@@ -1,4 +1,4 @@
-import type { Circle } from "@/lib/explore-data";
+import type { Circle } from "@/types";
 
 export type WishlistDetailItem = {
   id: string;
@@ -159,13 +159,35 @@ export function getCircleWishlist(circle: Circle): WishlistDetailItem[] {
     return sarahWishlist.map((item) => ({ ...item }));
   }
 
-  const fundingRatio = Math.min(circle.raised / circle.goal, 1);
-  const averageGoal = Math.round(circle.goal / circle.wishlist.length / 500) * 500;
+  const wishlistPreview =
+    circle.wishlistPreview ??
+    circle.wishlist?.map((item) => ({
+      id: item.id,
+      name: item.name,
+      emoji: item.emoji,
+    })) ??
+    circle.items?.map((item) => ({
+      id: item.id,
+      name: item.name,
+      emoji: item.emoji,
+    })) ??
+    [];
+  if (!wishlistPreview.length) return [];
+
+  const circleGoal = circle.funding
+    ? circle.funding.goalKobo / 100
+    : Number(circle.targetAmount ?? 0);
+  const circleRaised = circle.funding
+    ? circle.funding.raisedKobo / 100
+    : Number(circle.amountRaised ?? 0);
+  const fundingRatio = Math.min(circleRaised / Math.max(circleGoal, 1), 1);
+  const averageGoal =
+    Math.round(circleGoal / wishlistPreview.length / 500) * 500;
   let assignedGoal = 0;
 
-  return circle.wishlist.map((item, index) => {
-    const isLast = index === circle.wishlist.length - 1;
-    const goal = isLast ? circle.goal - assignedGoal : averageGoal;
+  return wishlistPreview.map((item, index) => {
+    const isLast = index === wishlistPreview.length - 1;
+    const goal = isLast ? circleGoal - assignedGoal : averageGoal;
     assignedGoal += goal;
     const raised = Math.min(
       goal,
@@ -173,10 +195,10 @@ export function getCircleWishlist(circle: Circle): WishlistDetailItem[] {
     );
 
     return {
-      id: `${circle.id}-item-${index + 1}`,
-      emoji: item.emoji,
-      name: item.label,
-      description: `A verified ${item.label.toLowerCase()} priority selected by the circle organizer.`,
+      id: item.id,
+      emoji: item.emoji || "🎁",
+      name: item.name,
+      description: `A verified ${item.name.toLowerCase()} priority selected by the circle organizer.`,
       goal,
       raised,
       accent: detailAccents[index % detailAccents.length],

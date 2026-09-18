@@ -68,17 +68,17 @@ export function CreateCircleWizard() {
       mode === "itemized"
         ? items
         : [
-            {
-              id: 0,
-              emoji: "💛",
-              name: "Flexible Community Cash Pool",
-              category: "Flexible Goal",
-              description: "Recipient-directed support",
-              price: cashGoal,
-              priceNote: "Organizer Goal",
-              accent: "primary",
-            },
-          ],
+          {
+            id: 0,
+            emoji: "💛",
+            name: "Flexible Community Cash Pool",
+            category: "Flexible Goal",
+            description: "Recipient-directed support",
+            price: cashGoal,
+            priceNote: "Organizer Goal",
+            accent: "primary",
+          },
+        ],
     [cashGoal, items, mode],
   );
 
@@ -153,7 +153,7 @@ export function CreateCircleWizard() {
     if (!publishedCircle?.shareUrl) return;
     const shareData = {
       title,
-      text: `Join ${recipientName}'s GiftCircle`,
+      text: `Join ${recipientName}'s CareCircle`,
       url: publishedCircle.shareUrl,
     };
 
@@ -224,7 +224,7 @@ export function CreateCircleWizard() {
       },
       storyMarkdown: storyWithCustomOccasion,
       coverImageUrl,
-      coverAlt: `${recipientName}'s GiftCircle cover`,
+      coverAlt: `${recipientName}'s CareCircle cover`,
       funding: {
         mode,
         currency: "NGN",
@@ -268,7 +268,7 @@ export function CreateCircleWizard() {
     setStatus("");
     try {
       const id = await saveDraft();
-      setStatus("Publishing your GiftCircle…");
+      setStatus("Publishing your CareCircle…");
       const published = await publishCircle({ id, idempotencyKey: crypto.randomUUID() }).unwrap();
       setPublishedCircle(published.data);
       setStatus("Circle published — opening its organizer dashboard…");
@@ -313,7 +313,7 @@ export function CreateCircleWizard() {
                 Organizer Creation Suite
               </div>
               <h1 className="max-w-4xl text-3xl font-extrabold leading-tight tracking-[-0.03em] text-on-surface sm:text-4xl">
-                Create a GiftCircle for Someone Special
+                Create a CareCircle for Someone Special
               </h1>
               <p className="mt-2 max-w-2xl text-base leading-7 text-on-surface-variant">
                 Honor life&apos;s milestones with collective warmth. Replace fragmented
@@ -375,11 +375,10 @@ export function CreateCircleWizard() {
                       return (
                         <button
                           aria-pressed={selected}
-                          className={`flex min-h-24 flex-col items-center justify-center rounded-xl p-3 text-center transition active:scale-95 ${
-                            selected
+                          className={`flex min-h-24 flex-col items-center justify-center rounded-xl p-3 text-center transition active:scale-95 ${selected
                               ? "bg-primary text-white shadow-md"
                               : "bg-surface-container-low text-on-surface hover:bg-surface-container"
-                          }`}
+                            }`}
                           key={item.id}
                           onClick={() => setOccasion(item.id)}
                           type="button"
@@ -484,7 +483,7 @@ export function CreateCircleWizard() {
                     <div className="group relative h-48 overflow-hidden rounded-xl bg-surface-container-low shadow-inner md:col-span-8">
                       {coverImage ? (
                         <>
-                          <Image alt="Selected GiftCircle cover" className="object-cover transition duration-700 group-hover:scale-105" fill sizes="(max-width: 767px) 100vw, 55vw" src={coverImage} unoptimized={coverImage.startsWith("blob:")} />
+                          <Image alt="Selected CareCircle cover" className="object-cover transition duration-700 group-hover:scale-105" fill sizes="(max-width: 767px) 100vw, 55vw" src={coverImage} unoptimized={coverImage.startsWith("blob:")} />
                           <div className="absolute inset-0 flex items-end justify-between gap-3 bg-gradient-to-t from-black/70 via-transparent to-transparent p-4">
                             <p className="truncate text-sm font-bold text-white">{coverName}</p>
                             <span className="grid h-9 w-9 place-items-center rounded-full bg-white/90 text-primary"><Icon name="image" size={16} /></span>
@@ -558,14 +557,13 @@ export function CreateCircleWizard() {
                     {[
                       ["link", "🔗", "Link-Only Circle", "Anyone with your private link can view & give."],
                       ["invite", "🔑", "Private Invite Only", "Organizer manually approves donor access"],
-                      ["public", "🌍", "Public Community", "Searchable on GiftCircle Explore for open mutual aid."],
+                      ["public", "🌍", "Public Community", "Searchable on CareCircle Explore for open mutual aid."],
                     ].map(([value, emoji, label, description], index) => (
                       <label
-                        className={`flex cursor-pointer flex-col rounded-xl border p-4 transition ${
-                          privacy === value
+                        className={`flex cursor-pointer flex-col rounded-xl border p-4 transition ${privacy === value
                             ? "border-primary bg-primary-fixed/45 shadow-sm"
                             : "border-transparent bg-surface-container-low hover:bg-surface-container"
-                        }`}
+                          }`}
                         key={value}
                       >
                         <span className="mb-2 flex items-center justify-between">
@@ -610,19 +608,19 @@ export function CreateCircleWizard() {
                     </label>
                     {delivery === "now" && (
                       <>
-                      <input
-                        aria-label="Recipient delivery address"
-                        className={`${fieldClass} mt-2`}
-                        onChange={(event) => setDeliveryAddress(event.target.value)}
-                        placeholder="Enter delivery address"
-                        required
-                        type="text"
-                        value={deliveryAddress}
-                      />
-                      <div className="mt-2 grid grid-cols-2 gap-2">
-                        <input aria-label="Delivery city" className={fieldClass} onChange={(event) => setDeliveryCity(event.target.value)} placeholder="City" required value={deliveryCity} />
-                        <input aria-label="Delivery state" className={fieldClass} onChange={(event) => setDeliveryState(event.target.value)} placeholder="State" required value={deliveryState} />
-                      </div>
+                        <input
+                          aria-label="Recipient delivery address"
+                          className={`${fieldClass} mt-2`}
+                          onChange={(event) => setDeliveryAddress(event.target.value)}
+                          placeholder="Enter delivery address"
+                          required
+                          type="text"
+                          value={deliveryAddress}
+                        />
+                        <div className="mt-2 grid grid-cols-2 gap-2">
+                          <input aria-label="Delivery city" className={fieldClass} onChange={(event) => setDeliveryCity(event.target.value)} placeholder="City" required value={deliveryCity} />
+                          <input aria-label="Delivery state" className={fieldClass} onChange={(event) => setDeliveryState(event.target.value)} placeholder="State" required value={deliveryState} />
+                        </div>
                       </>
                     )}
                     <label className="mt-2 flex cursor-pointer items-start gap-2 text-sm font-bold leading-6 text-secondary">
@@ -657,7 +655,7 @@ export function CreateCircleWizard() {
               <button className="inline-flex items-center gap-1.5 text-sm font-bold text-on-surface-variant hover:text-on-surface" onClick={() => goToStep(1)} type="button">
                 <Icon name="arrow-left" size={15} /> Back to Step 1
               </button>
-              <span className="hidden items-center gap-1.5 text-xs text-on-surface-variant md:inline-flex"><Icon name="cloud" size={14} /> {draftId ? "Draft saved to GiftCircle" : "Changes are only on this device"}</span>
+              <span className="hidden items-center gap-1.5 text-xs text-on-surface-variant md:inline-flex"><Icon name="cloud" size={14} /> {draftId ? "Draft saved to CareCircle" : "Changes are only on this device"}</span>
             </div>
             <div className="flex w-full items-center justify-end gap-2 sm:w-auto">
               <button className="rounded-full bg-surface-container px-5 py-2.5 text-sm font-bold text-on-surface hover:bg-surface-container-high disabled:opacity-60" disabled={submitting || Boolean(draftId)} onClick={async () => { setSubmitting(true); try { await saveDraft(); } catch (error) { setStatus(getApiErrorMessage(error, "Your draft could not be saved.")); } finally { setSubmitting(false); } }} type="button">{draftId ? "Draft Saved" : "Save Draft"}</button>
@@ -688,7 +686,7 @@ export function CreateCircleWizard() {
 
             <div className="relative h-44 bg-surface-container">
               {coverImage ? (
-                <Image alt="GiftCircle campaign cover preview" className="object-cover" fill sizes="512px" src={coverImage} unoptimized={coverImage.startsWith("blob:")} />
+                <Image alt="CareCircle campaign cover preview" className="object-cover" fill sizes="512px" src={coverImage} unoptimized={coverImage.startsWith("blob:")} />
               ) : (
                 <div className="grid h-full place-items-center text-on-surface-variant"><Icon name="image" size={30} /></div>
               )}
@@ -706,7 +704,7 @@ export function CreateCircleWizard() {
                     <Icon name="check" size={19} />
                   </span>
                   <div>
-                    <p className="text-sm font-extrabold">Your GiftCircle is live</p>
+                    <p className="text-sm font-extrabold">Your CareCircle is live</p>
                     <p className="text-xs text-on-secondary-fixed">Share the link and start gathering support.</p>
                   </div>
                 </div>

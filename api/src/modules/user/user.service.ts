@@ -39,7 +39,7 @@ export class UserService {
       await manager.delete(Token, { userId });
       user.deletedAt = new Date();
       user.name = 'Deleted user';
-      user.email = `deleted-${user.id}@giftcircle.invalid`;
+      user.email = `deleted-${user.id}@CareCircle.invalid`;
       user.passwordHash = null;
       user.googleId = null;
       user.avatarUrl = null;
