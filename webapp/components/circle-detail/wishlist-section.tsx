@@ -37,7 +37,7 @@ export function WishlistSection({
       <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
         <div>
           <h2 className="text-2xl font-bold text-on-surface" id="wishlist-heading">
-            Curated Gift Wishlist Bundle
+            Curated Support Wishlist
           </h2>
           <p className="mt-1 text-sm leading-6 text-on-surface-variant">
             Items are purchased centrally and delivered in one joyful package

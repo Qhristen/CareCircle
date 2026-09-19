@@ -15,7 +15,7 @@ const steps: Array<{
       title: "Start a Circle in 60s",
       description:
         "Set up an occasion, add specific wishlist items, or choose a flexible mutual-aid milestone in Naira.",
-      detail: "Thoughtful templates for birthdays, bridal, and care funds.",
+      detail: "Flexible templates for care funds and community support.",
       icon: "book",
       numberStyle: "bg-primary-fixed text-on-primary-fixed",
       iconStyle: "text-primary",
@@ -24,8 +24,8 @@ const steps: Array<{
       number: 2,
       title: "Share & Chip In Flexibly",
       description:
-        "Share one beautiful link on WhatsApp, social media, or email. Anyone can chip in",
-      detail: "Card, transfer, and USSD payments on secure settlement rails.",
+        "Share one beautiful link on WhatsApp, social media, or email. Anyone can chip in.",
+      detail: "A single link invites your community to give what they can through card, transfer, or USSD.",
       icon: "shield",
       numberStyle: "bg-secondary-fixed text-on-secondary-fixed",
       iconStyle: "text-secondary",
@@ -35,7 +35,7 @@ const steps: Array<{
       title: "Delivery & Keepsake Card",
       description:
         "Funds clear to verified fulfillment or the recipient, alongside a scrapbook of everyone’s warm blessings.",
-      detail: "99.4% delivery verification with transparent community receipts.",
+      detail: "Funds reach verified needs with a keepsake of community love and gratitude.",
       icon: "heart",
       numberStyle: "bg-tertiary-fixed text-on-tertiary-fixed",
       iconStyle: "text-tertiary",
@@ -61,8 +61,7 @@ export function HowItWorks() {
             How CareCircle Works
           </h2>
           <p className="mt-2 text-sm leading-6 text-on-surface-variant">
-            Replace fragmented group transfers, awkward reminders, and lost
-            delivery coordination with one warm collective experience.
+            CareCircle is a collective support platform that brings communities together to give what they can to help, celebrate, or support someone in need.
           </p>
         </div>
 

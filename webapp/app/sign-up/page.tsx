@@ -17,7 +17,7 @@ const communityReasons = [
     iconClass: "bg-primary-fixed text-primary",
   },
   {
-    icon: "gift" as const,
+    icon: "book" as const,
     title: "Transparent verified wishlists",
     body: "Friends contribute directly toward verified retail partner items with doorstep dispatch.",
     iconClass: "bg-secondary-fixed text-secondary",

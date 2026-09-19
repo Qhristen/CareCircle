@@ -82,7 +82,7 @@ export function OrganizerDashboardRoute({ circleId }: { circleId: string }) {
     name: entry.displayName,
     meta: `${new Date(entry.paidAt || entry.createdAt).toLocaleString("en-NG", { dateStyle: "medium", timeStyle: "short" })} • ${entry.paymentReference}`,
     amount: entry.amountKobo / 100,
-    allocation: entry.allocation?.name || "General Gift Vault",
+    allocation: entry.allocation?.name || "General Support Fund",
     rail: entry.paymentMethod === "bank_transfer" ? "Bank Transfer" : "Card / Paystack",
     note: entry.note || "No message was included with this contribution.",
     accent: accents[index % accents.length],

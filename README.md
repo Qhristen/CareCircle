@@ -1,20 +1,20 @@
-## GiftCircle
+## CareCircle
 
 ### When something happens to one person, a community can come together to help.
 
-GiftCircle is a community-powered support platform that helps people quickly
+CareCircle is a community-powered support platform that helps people quickly
 organize, contribute, and coordinate assistance for someone affected by a
 traumatic event or unexpected emergency. It creates a structured, transparent
 space where an organizer can list needs, invite a community, collect support,
 track fulfillment, and confirm delivery.
 
-## Why GiftCircle
+## Why CareCircle
 
 - Reduces fragmented coordination across chats, transfers, and spreadsheets.
 - Connects contributions directly to identified needs (food, transport, shelter, etc.).
 - Enables visibility, verification, and accountable fulfillment for contributors.
 
-## How GiftCircle works (summary)
+## How CareCircle works (summary)
 
 1. Organizer creates a support circle describing needs and privacy settings.
 2. Organizer defines specific needs (items or financial targets) and a total goal.
@@ -41,7 +41,7 @@ and real-time events. The web app is the public and organizer-facing client.
 - Node.js 20.19 or newer
 - npm 10 or newer
 - Yarn 1.22
-- PostgreSQL with an empty `GiftCircle` database
+- PostgreSQL with an empty `CareCircle` database
 
 Start each service in a separate terminal. The examples below run the API on
 port `9000` and the web app on port `3000`.
@@ -65,7 +65,7 @@ FRONTEND_URL=http://localhost:3000
 BACKEND_URL=http://localhost:9000
 CORS_ORIGINS=http://localhost:3000
 
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/GiftCircle
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/CareCircle
 
 JWT_SECRET=replace-with-at-least-32-random-characters
 JWT_ACCESS_TOKEN_EXPIRY=900

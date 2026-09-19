@@ -17,7 +17,6 @@ export type IconName =
   | "copy"
   | "edit"
   | "eye"
-  | "gift"
   | "heart"
   | "image"
   | "leaf"
@@ -112,11 +111,6 @@ export function Icon({ name, size = 20, ...props }: IconProps) {
       <>
         <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
         <circle cx="12" cy="12" r="2.5" />
-      </>
-    ),
-    gift: (
-      <>
-        <path d="M3 9h18v4H3zM5 13h14v8H5zM12 9v12M7.5 9C5 9 4 7.8 4 6.4S5.1 4 6.4 4C8.7 4 12 9 12 9M16.5 9C19 9 20 7.8 20 6.4S18.9 4 17.6 4C15.3 4 12 9 12 9" />
       </>
     ),
     heart: <path d="M20.8 5.7a5.4 5.4 0 0 0-7.6 0L12 6.9l-1.2-1.2a5.4 5.4 0 0 0-7.6 7.6L12 22l8.8-8.7a5.4 5.4 0 0 0 0-7.6Z" />,

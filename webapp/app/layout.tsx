@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     template: "%s | CareCircle",
   },
   description:
-    "Create transparent community gift circles for life's celebrations and moments of care.",
+    "Create transparent community support circles for life's celebrations and moments of care.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

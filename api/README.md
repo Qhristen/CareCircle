@@ -1,6 +1,6 @@
-# GiftCircle API
+# CareCircle API
 
-GiftCircle turns fragmented community support into a structured, transparent
+CareCircle turns fragmented community support into a structured, transparent
 collective-support experience. This NestJS API supports the complete POC
 journey: account creation, circle setup, needs lists, private invitations,
 contributions, payments, social updates, fulfillment tracking, and recipient

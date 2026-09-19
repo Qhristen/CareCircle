@@ -55,9 +55,6 @@ export function ContributionPanel({
 }) {
   const [message, setMessage] = useState("");
   const [anonymous, setAnonymous] = useState(false);
-  const [displayName, setDisplayName] = useState("");
-  const [email, setEmail] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<"card" | "bank_transfer">("card");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const percentage = Math.min(Math.round((raised / target) * 100), 100);
@@ -213,7 +210,7 @@ export function ContributionPanel({
       <div className="rounded-2xl border border-surface-container bg-white p-6 shadow-soft">
         <div className="flex items-center justify-between">
           <h3 className="inline-flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-on-surface">
-            <Icon className="text-secondary" name="gift" size={16} /> Fulfillment Pipeline
+            <Icon className="text-secondary" name="sparkles" size={16} /> Fulfillment Pipeline
           </h3>
           <span className="text-[11px] font-bold text-secondary">Stage 1 Active</span>
         </div>

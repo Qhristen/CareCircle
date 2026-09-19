@@ -149,7 +149,7 @@ function backerToContributor(
       backer.item ??
       (index % 3 === 0 && wishlist.length
         ? wishlist[index % wishlist.length].name
-        : "General Gift Vault"),
+        : "General Support Fund"),
     rail: rail.badge,
     note:
       backer.message ||
@@ -186,7 +186,7 @@ function buildContributorRoster(
       allocation:
         index % 3 === 0 && wishlist.length
           ? wishlist[index % wishlist.length].name
-          : "General Gift Vault",
+          : "General Support Fund",
       rail: rail.badge,
       note: `Sending warm wishes and practical support to ${knownRecipients[circle.id] ?? circle.title}.`,
       accent: accents[index % accents.length],

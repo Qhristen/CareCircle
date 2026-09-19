@@ -231,7 +231,7 @@ export function OrganizerDashboard({ circle, dashboardData }: { circle: Circle; 
       badge: "PACKING",
       description: "Quality checks, careful packing, and keepsake integration by the fulfillment partner.",
       detail: `${dashboard.vendorName} QA`,
-      icon: "gift" as IconName,
+      icon: "sparkles" as IconName,
     },
     {
       title: "Doorstep Courier",
@@ -513,7 +513,7 @@ export function OrganizerDashboard({ circle, dashboardData }: { circle: Circle; 
                 ? `${naira(dashboard.remaining)} left`
                 : `${dashboard.fundedPercent}% complete`
             }
-            icon="gift"
+            icon="wallet"
             title="Total Escrow Vault"
             value={naira(raised)}
           />
@@ -537,7 +537,7 @@ export function OrganizerDashboard({ circle, dashboardData }: { circle: Circle; 
             }
             footer={`${wishlist.length - claimedItems} priorities pending`}
             footerValue={`${claimedItems} fulfilled`}
-            icon="gift"
+            icon="check"
             title="Items Claimed"
             value={`${claimedItems} of ${wishlist.length}`}
           />
@@ -694,7 +694,7 @@ export function OrganizerDashboard({ circle, dashboardData }: { circle: Circle; 
                 <TabButton
                   active={activeTab === "wishlist"}
                   controls="wishlist-panel"
-                  icon="gift"
+                  icon="book"
                   label={`Wishlist Breakdown (${wishlist.length} Items)`}
                   onClick={() => setActiveTab("wishlist")}
                 />
@@ -802,12 +802,12 @@ export function OrganizerDashboard({ circle, dashboardData }: { circle: Circle; 
                                 {naira(contributor.amount)}
                               </div>
                               <span
-                                className={`inline-flex items-center gap-1 text-[11px] font-semibold leading-4 ${contributor.allocation === "General Gift Vault" ? "text-primary" : "text-secondary"}`}
+                                className={`inline-flex items-center gap-1 text-[11px] font-semibold leading-4 ${contributor.allocation === "General Support Fund" ? "text-primary" : "text-secondary"}`}
                               >
                                 <Icon
                                   name={
-                                    contributor.allocation === "General Gift Vault"
-                                      ? "gift"
+                                    contributor.allocation === "General Support Fund"
+                                      ? "wallet"
                                       : "check"
                                   }
                                   size={12}

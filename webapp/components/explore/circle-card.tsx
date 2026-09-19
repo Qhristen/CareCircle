@@ -102,18 +102,6 @@ export function CircleCard({ circle }: { circle: Circle }) {
 
       <div className="flex flex-1 flex-col justify-between gap-5 p-6">
         <div>
-          <div className="mb-4 flex min-h-12 flex-wrap content-start items-start gap-1.5">
-            {wishlistPreview.map((item) => (
-              <span
-                className="inline-flex items-center gap-1 rounded-md bg-surface-container-low px-2 py-1 text-[11px] font-semibold text-on-surface-variant"
-                key={item.id}
-              >
-                <span aria-hidden="true">{item.emoji || "🎁"}</span>
-                {item.name}
-              </span>
-            ))}
-          </div>
-
           <div className="mb-2 flex items-baseline justify-between gap-3">
             <div>
               <span className="text-2xl font-extrabold tracking-tight text-on-surface">
@@ -149,18 +137,7 @@ export function CircleCard({ circle }: { circle: Circle }) {
               aria-label={`${funding.supporterCount} contributors`}
               className="flex items-center -space-x-2"
             >
-              {[
-                ["CA", "bg-[#f4b69f]"],
-                ["TO", "bg-[#94cbb3]"],
-                ["ME", "bg-[#f2c982]"],
-              ].map(([initials, color]) => (
-                <span
-                  className={`grid h-7 w-7 place-items-center rounded-full border-2 border-white text-[8px] font-extrabold text-on-surface ${color}`}
-                  key={initials}
-                >
-                  {initials}
-                </span>
-              ))}
+          
               {extraContributors > 0 && (
                 <span className="grid h-7 w-7 place-items-center rounded-full border-2 border-white bg-surface-container-highest text-[9px] font-extrabold text-on-surface">
                   +{extraContributors}

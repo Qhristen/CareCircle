@@ -18,7 +18,7 @@ import { useUploadWithCloudinaryMutation } from "@/lib/store/api/uploadApi";
 import type { CreateCircleDto, PublishedCircle } from "@/types";
 
 const fieldClass =
-  "w-full rounded-lg bg-surface-container-low px-4 py-3 text-sm text-on-surface shadow-inner outline-none ring-primary/20 transition focus:bg-white focus:ring-4";
+  "w-full rounded-lg bg-surface-container-low px-4 py-3 mt-2 text-sm text-on-surface shadow-inner outline-none ring-primary/20 transition focus:bg-white focus:ring-4";
 
 function naira(value: number) {
   return `₦${new Intl.NumberFormat("en-NG").format(value)}`;
@@ -40,7 +40,7 @@ export function CreateCircleWizard() {
   const [status, setStatus] = useState("");
   const [currentStep, setCurrentStep] = useState(1);
   const [privacy, setPrivacy] = useState("link");
-  const [delivery, setDelivery] = useState("ask");
+  const [delivery, setDelivery] = useState("now");
   const [deadline, setDeadline] = useState("");
   const [deliveryAddress, setDeliveryAddress] = useState("");
   const [deliveryCity, setDeliveryCity] = useState("");
@@ -331,10 +331,10 @@ export function CreateCircleWizard() {
           <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
             <div className="space-y-8 lg:col-span-8">
               <FormSection
-                description="Set the recipient identity and cultural vibe for the collective gift pool."
+                description="Set the recipient identity and cultural vibe for the collective support pool."
                 id="recipient-section"
                 letter="A"
-                symbol="👥"
+                symbol=""
                 title="Who are you celebrating or supporting?"
               >
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -633,7 +633,7 @@ export function CreateCircleWizard() {
                       />
                       Ask {recipientName || "the recipient"} privately when the goal is reached
                     </label>
-                    <p className="mt-2 text-xs leading-5 text-on-surface-variant">Preserves the surprise without spoiling the gift reveal.</p>
+                    <p className="mt-2 text-xs leading-5 text-on-surface-variant">Preserves the surprise until the circle is complete.</p>
                   </fieldset>
                 </div>
               </FormSection>

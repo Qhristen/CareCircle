@@ -4,12 +4,12 @@ import { Icon } from "@/components/ui/icon";
 
 const footerGroups = [
   {
-    title: "Collective Gifting",
+    title: "Community Support",
     links: [
       ["Browse Circles", "/explore-circles"],
       ["Active Bundles", "/explore-circles#active-circles"],
       ["Create a Circle", "/create-circle"],
-      ["Gift Registries", "/explore-circles"],
+      ["Support Wishlists", "/explore-circles"],
     ],
   },
   {
@@ -32,7 +32,7 @@ export function SiteFooter() {
             <Logo />
             <p className="max-w-sm text-sm leading-6 text-on-surface-variant">
               Bridging the ancestral heart of African collective support with
-              transparent, secure, and celebratory digital gifting.
+              transparent, secure, and meaningful digital giving.
             </p>
             {/* <div className="inline-flex items-center gap-2 rounded-full bg-secondary-fixed px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-wider text-on-secondary-fixed">
               <Icon name="shield" size={16} />

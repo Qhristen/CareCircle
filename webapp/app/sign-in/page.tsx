@@ -30,9 +30,7 @@ export default function SignInPage() {
               <span className="inline-flex items-center gap-2 rounded-full bg-white/90 px-4 py-2 text-[10px] font-extrabold uppercase tracking-wider shadow-sm backdrop-blur-md">
                 <Icon className="text-primary" name="heart" size={17} /> Harambee & Esusu Reimagined
               </span>
-              <span className="inline-flex items-center gap-2 rounded-full bg-secondary-fixed/90 px-4 py-2 text-[10px] font-bold text-on-secondary-fixed shadow-sm backdrop-blur-md">
-                <Icon name="lock" size={15} /> ProvidusBank Escrow
-              </span>
+      
             </div>
 
             <div className="my-auto space-y-4 py-8">

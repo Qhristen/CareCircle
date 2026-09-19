@@ -60,7 +60,7 @@ export const sarahWishlist: WishlistDetailItem[] = [
     goal: 30000,
     raised: 30000,
     accent: "secondary",
-    completionNote: "Generously gifted by David O.",
+    completionNote: "Generously supported by David O.",
   },
   {
     id: "meals",

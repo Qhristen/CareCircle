@@ -124,7 +124,7 @@ export function SignUpForm() {
       {error && <p className="rounded-lg bg-red-50 px-4 py-3 text-sm font-semibold text-red-700" role="alert">{error}</p>}
 
       <button className="mt-1 inline-flex w-full items-center justify-center gap-3 rounded-full bg-primary px-6 py-4 text-sm font-extrabold text-white shadow-md transition hover:bg-primary-container active:scale-[0.99] disabled:cursor-wait disabled:opacity-70" disabled={isLoading} type="submit">
-        {isLoading ? "Creating your account..." : "Create Account & Start Gifting"}
+        {isLoading ? "Creating your account..." : "Create Account & Start Supporting"}
         {!isLoading && <Icon name="arrow-right" size={19} />}
       </button>
 

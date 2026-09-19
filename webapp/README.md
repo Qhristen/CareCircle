@@ -1,6 +1,6 @@
-# GiftCircle web app
+# CareCircle web app
 
-This is the GiftCircle web client built with [Next.js](https://nextjs.org). It
+This is the CareCircle web client built with [Next.js](https://nextjs.org). It
 is the public and organizer-facing client used to create and manage support
 circles, review needs, contribute, and follow fulfillment.
 

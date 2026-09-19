@@ -62,13 +62,13 @@ export function WishlistBuilder({
             </p>
           </div>
         </div>
-        <div className="flex self-start rounded-full bg-surface-container-high p-1">
+        <div className="flex self-start rounded-full bg-surface-container-high p-2">
           {[
             ["cash", "Cash Pool Only"],
             ["itemized", "Itemized Bundle + Flex"],
           ].map(([value, label]) => (
             <button
-              className={`whitespace-nowrap rounded-full px-2 py-1 text-xs transition ${
+              className={`whitespace-nowrap rounded-full px-3 py-4 text-xs transition ${
                 mode === value
                   ? "bg-primary text-white shadow-sm"
                   : "text-on-surface-variant hover:text-on-surface"

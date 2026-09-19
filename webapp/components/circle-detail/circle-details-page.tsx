@@ -57,7 +57,7 @@ export function CircleDetailsPage({ circleId }: { circleId: string }) {
     return (
       <main className="mx-auto grid min-h-[65vh] max-w-2xl place-items-center px-4 py-16 text-center">
         <div>
-          <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-primary-fixed text-primary"><Icon name="gift" size={24} /></span>
+          <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-primary-fixed text-primary"><Icon name="heart" size={24} /></span>
           <h1 className="mt-4 text-2xl font-extrabold text-on-surface">Circle unavailable</h1>
           <p className="mt-2 text-sm text-on-surface-variant">{getApiErrorMessage(error, "This circle may be private, closed, or no longer available.")}</p>
           <div className="mt-6 flex justify-center gap-3"><button className="rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-white" onClick={refetch} type="button">Try again</button><Link className="rounded-full bg-surface-container px-5 py-2.5 text-sm font-bold" href="/explore-circles">Explore circles</Link></div>

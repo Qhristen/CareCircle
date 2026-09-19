@@ -48,11 +48,14 @@ export function ExploreHero() {
               <span className="text-outline">•</span>
               <span className="text-on-surface-variant">Live in 12 Cities</span>
             </div>
-
+            {/* 
             <h1 className="max-w-3xl text-[36px] font-extrabold leading-[1.13] tracking-[-0.035em] text-on-surface sm:text-[44px] sm:leading-[1.15]">
-              Turning individual gifts into{" "}
+              Turning individual contributions into{" "}
               <span className="italic text-primary">collective support.</span>
-            </h1>
+            </h1> */}
+
+            <h1 className="max-w-3xl text-[36px] font-extrabold leading-[1.13] tracking-[-0.035em] text-on-surface sm:text-[44px] sm:leading-[1.15]">Turning community generosity into <span className="text-primary italic pr-2">coordinated support</span> when it matters most.</h1>
+
             <p className="max-w-xl text-base leading-7 text-on-surface-variant">
               Join friends, families, and colleagues across Nigeria and beyond
               to celebrate milestones and stand by each other in moments that

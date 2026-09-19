@@ -293,10 +293,10 @@ export function MyCirclesPage() {
           </div>
         ) : (
           <section className="mt-4 rounded-2xl bg-surface-container-low px-6 py-16 text-center">
-            <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-white text-primary shadow-sm"><Icon name={hasFilters ? "search" : "gift"} size={23} /></span>
+            <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-white text-primary shadow-sm"><Icon name={hasFilters ? "search" : "heart"} size={23} /></span>
             <h2 className="mt-5 text-xl font-extrabold text-on-surface">{hasFilters ? "No matching circles" : "Create your first circle"}</h2>
             <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-on-surface-variant">
-              {hasFilters ? "Try another search or clear the filters to see all your circles." : "Bring friends and family together around a thoughtful gift or a moment of support."}
+              {hasFilters ? "Try another search or clear the filters to see all your circles." : "Bring friends and family together for a meaningful celebration or a moment of need."}
             </p>
             {hasFilters ? (
               <button className="mt-6 rounded-full bg-primary px-5 py-2.5 text-sm font-extrabold text-white" onClick={resetFilters} type="button">Clear filters</button>
