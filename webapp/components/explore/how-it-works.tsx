@@ -1,41 +1,41 @@
+"use client";
+
 import Link from "next/link";
+import { useTranslation } from "react-i18next";
 import { Icon, type IconName } from "@/components/ui/icon";
 
 const steps: Array<{
   number: number;
-  title: string;
-  description: string;
-  detail: string;
+  titleKey: string;
+  descriptionKey: string;
+  detailKey: string;
   icon: IconName;
   numberStyle: string;
   iconStyle: string;
 }> = [
     {
       number: 1,
-      title: "Start a Circle in 60s",
-      description:
-        "Set up an occasion, add specific wishlist items, or choose a flexible mutual-aid milestone in Naira.",
-      detail: "Flexible templates for care funds and community support.",
+      titleKey: "explore.how.steps.oneTitle",
+      descriptionKey: "explore.how.steps.oneDescription",
+      detailKey: "explore.how.steps.oneDetail",
       icon: "book",
       numberStyle: "bg-primary-fixed text-on-primary-fixed",
       iconStyle: "text-primary",
     },
     {
       number: 2,
-      title: "Share & Chip In Flexibly",
-      description:
-        "Share one beautiful link on WhatsApp, social media, or email. Anyone can chip in.",
-      detail: "A single link invites your community to give what they can through card, transfer, or USSD.",
+      titleKey: "explore.how.steps.twoTitle",
+      descriptionKey: "explore.how.steps.twoDescription",
+      detailKey: "explore.how.steps.twoDetail",
       icon: "shield",
       numberStyle: "bg-secondary-fixed text-on-secondary-fixed",
       iconStyle: "text-secondary",
     },
     {
       number: 3,
-      title: "Delivery & Keepsake Card",
-      description:
-        "Funds clear to verified fulfillment or the recipient, alongside a scrapbook of everyone’s warm blessings.",
-      detail: "Funds reach verified needs with a keepsake of community love and gratitude.",
+      titleKey: "explore.how.steps.threeTitle",
+      descriptionKey: "explore.how.steps.threeDescription",
+      detailKey: "explore.how.steps.threeDetail",
       icon: "heart",
       numberStyle: "bg-tertiary-fixed text-on-tertiary-fixed",
       iconStyle: "text-tertiary",
@@ -43,6 +43,8 @@ const steps: Array<{
   ];
 
 export function HowItWorks() {
+  const { t } = useTranslation();
+
   return (
     <section
       aria-labelledby="how-it-works-heading"
@@ -52,16 +54,16 @@ export function HowItWorks() {
       <div className="mx-auto max-w-[1240px] px-4 sm:px-6">
         <div className="mx-auto mb-8 max-w-2xl text-center">
           <p className="mb-1 text-[11px] font-extrabold uppercase tracking-[0.14em] text-primary">
-            Simple, Dignified, Transparent
+            {t("explore.how.eyebrow")}
           </p>
           <h2
             className="text-[28px] font-extrabold tracking-tight text-on-surface sm:text-[32px]"
             id="how-it-works-heading"
           >
-            How CareCircle Works
+            {t("explore.how.title")}
           </h2>
           <p className="mt-2 text-sm leading-6 text-on-surface-variant">
-            CareCircle is a collective support platform that brings communities together to give what they can to help, celebrate, or support someone in need.
+            {t("explore.how.description")}
           </p>
         </div>
 
@@ -76,9 +78,9 @@ export function HowItWorks() {
               >
                 {step.number}
               </div>
-              <h3 className="text-xl font-bold text-on-surface">{step.title}</h3>
+              <h3 className="text-xl font-bold text-on-surface">{t(step.titleKey)}</h3>
               <p className="mb-5 mt-2 text-sm leading-6 text-on-surface-variant">
-                {step.description}
+                {t(step.descriptionKey)}
               </p>
               <div className="flex items-start gap-2.5 rounded-xl bg-surface-container-low p-3 text-xs leading-5 text-on-surface-variant">
                 <Icon
@@ -86,7 +88,7 @@ export function HowItWorks() {
                   name={step.icon}
                   size={19}
                 />
-                <span>{step.detail}</span>
+                <span>{t(step.detailKey)}</span>
               </div>
             </article>
           ))}
@@ -94,16 +96,16 @@ export function HowItWorks() {
 
         <div className="mt-8 flex flex-col items-center justify-between gap-6 rounded-2xl bg-gradient-to-r from-primary to-primary-container p-7 text-white md:flex-row md:p-8">
           <div className="text-center md:text-left">
-            <h3 className="text-xl font-bold">Have someone special in mind?</h3>
+            <h3 className="text-xl font-bold">{t("explore.how.ctaTitle")}</h3>
             <p className="mt-1 text-sm text-primary-fixed">
-              Create a private or public circle now — no initial payment needed.
+              {t("explore.how.ctaBody")}
             </p>
           </div>
           <Link
             className="shrink-0 rounded-full bg-white px-7 py-3.5 text-[13px] font-extrabold text-primary transition hover:bg-surface active:scale-[0.98]"
             href="/create-circle"
           >
-            Start a CareCircle in 60 Seconds
+            {t("explore.how.ctaButton")}
           </Link>
         </div>
       </div>

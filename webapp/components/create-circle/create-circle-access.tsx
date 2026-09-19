@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslation } from "react-i18next";
 import { CreateCircleWizard } from "@/components/create-circle/create-circle-wizard";
 import { Icon } from "@/components/ui/icon";
 import { useAppSelector } from "@/lib/store/hooks";
 
 export function CreateCircleAccess() {
+  const { t } = useTranslation();
   const { authChecked, isAuthenticated } = useAppSelector((state) => state.auth);
 
   if (!authChecked) {
@@ -13,7 +15,7 @@ export function CreateCircleAccess() {
       <main className="grid min-h-[65vh] place-items-center bg-surface px-4">
         <div className="text-center">
           <span className="mx-auto block h-10 w-10 animate-spin rounded-full border-4 border-primary-fixed border-t-primary" />
-          <p className="mt-4 text-sm font-semibold text-on-surface-variant">Checking your session…</p>
+          <p className="mt-4 text-sm font-semibold text-on-surface-variant">{t("create.access.checking")}</p>
         </div>
       </main>
     );
@@ -26,15 +28,15 @@ export function CreateCircleAccess() {
           <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-primary-fixed text-primary">
             <Icon name="lock" size={25} />
           </span>
-          <h1 className="mt-5 text-2xl font-extrabold text-on-surface">Sign in to create a circle</h1>
+          <h1 className="mt-5 text-2xl font-extrabold text-on-surface">{t("create.access.title")}</h1>
           <p className="mt-2 text-sm leading-6 text-on-surface-variant">
-            Your account is needed to save the draft, manage contributions, and publish its share link.
+            {t("create.access.body")}
           </p>
           <Link className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-extrabold text-white hover:bg-primary-container" href="/sign-in?next=/create-circle">
-            Sign in to continue <Icon name="arrow-right" size={17} />
+            {t("create.access.signIn")} <Icon name="arrow-right" size={17} />
           </Link>
           <p className="mt-4 text-xs text-on-surface-variant">
-            New to CareCircle? <Link className="font-bold text-primary hover:underline" href="/sign-up">Create an account</Link>
+            {t("create.access.new")} <Link className="font-bold text-primary hover:underline" href="/sign-up">{t("create.access.createAccount")}</Link>
           </p>
         </section>
       </main>

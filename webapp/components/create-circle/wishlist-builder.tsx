@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Icon } from "@/components/ui/icon";
 import type { WishlistItem } from "@/lib/create-circle-data";
 
@@ -33,6 +34,7 @@ export function WishlistBuilder({
   onDelete: (id: number) => void;
   onUpdate: (id: number, updates: Pick<WishlistItem, "name" | "price">) => void;
 }) {
+  const { t } = useTranslation();
   const [editing, setEditing] = useState<{
     id: number;
     name: string;
@@ -56,16 +58,16 @@ export function WishlistBuilder({
             C
           </span>
           <div>
-            <h2 className="text-lg font-bold text-on-surface">Target & Wishlist Bundle Builder</h2>
+            <h2 className="text-lg font-bold text-on-surface">{t("create.wishlist.title")}</h2>
             <p className="mt-0.5 text-sm leading-6 text-on-surface-variant">
-              Donors can sponsor single items or chip in small amounts.
+              {t("create.wishlist.body")}
             </p>
           </div>
         </div>
         <div className="flex self-start rounded-full bg-surface-container-high p-2">
           {[
-            ["cash", "Cash Pool Only"],
-            ["itemized", "Itemized Bundle + Flex"],
+            ["cash", t("create.wishlist.cashOnly")],
+            ["itemized", t("create.wishlist.itemized")],
           ].map(([value, label]) => (
             <button
               className={`whitespace-nowrap rounded-full px-3 py-4 text-xs transition ${
@@ -86,7 +88,7 @@ export function WishlistBuilder({
       {mode === "cash" ? (
         <div className="rounded-xl bg-surface-container-low p-5">
           <label className="mb-2 block text-[13px] font-bold text-on-surface" htmlFor="cash-goal">
-            Flexible Cash Goal
+            {t("create.wishlist.cashGoal")}
           </label>
           <div className="relative max-w-sm">
             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg font-extrabold text-primary">₦</span>
@@ -116,7 +118,7 @@ export function WishlistBuilder({
                     {editing?.id === item.id ? (
                       <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_130px]">
                         <label>
-                          <span className="sr-only">Item name</span>
+                          <span className="sr-only">{t("create.wishlist.itemName")}</span>
                           <input
                             autoFocus
                             className="w-full rounded-lg bg-white px-3 py-2 text-sm font-bold text-on-surface outline-none ring-primary/20 focus:ring-4"
@@ -128,7 +130,7 @@ export function WishlistBuilder({
                         </label>
                         <label className="relative">
                           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-primary">₦</span>
-                          <span className="sr-only">Item price</span>
+                          <span className="sr-only">{t("create.wishlist.itemPrice")}</span>
                           <input
                             className="w-full rounded-lg bg-white py-2 pl-7 pr-3 text-sm font-bold text-on-surface outline-none ring-primary/20 focus:ring-4"
                             min={1000}
@@ -165,7 +167,7 @@ export function WishlistBuilder({
                     {editing?.id === item.id ? (
                       <>
                         <button
-                          aria-label={`Save changes to ${item.name}`}
+                          aria-label={t("create.wishlist.save", { name: item.name })}
                           className="grid h-8 w-8 place-items-center rounded-full bg-secondary text-white transition hover:bg-[#285b49]"
                           onClick={saveEdit}
                           type="button"
@@ -173,7 +175,7 @@ export function WishlistBuilder({
                           <Icon name="check" size={15} />
                         </button>
                         <button
-                          aria-label="Cancel editing"
+                          aria-label={t("create.wishlist.cancel")}
                           className="grid h-8 w-8 place-items-center rounded-full text-on-surface-variant transition hover:bg-white"
                           onClick={() => setEditing(null)}
                           type="button"
@@ -183,7 +185,7 @@ export function WishlistBuilder({
                       </>
                     ) : (
                       <button
-                        aria-label={`Edit ${item.name}`}
+                        aria-label={t("create.wishlist.edit", { name: item.name })}
                         className="grid h-8 w-8 place-items-center rounded-full text-on-surface-variant transition hover:bg-white"
                         onClick={() =>
                           setEditing({
@@ -198,7 +200,7 @@ export function WishlistBuilder({
                       </button>
                     )}
                     <button
-                      aria-label={`Remove ${item.name}`}
+                      aria-label={t("create.wishlist.remove", { name: item.name })}
                       className="grid h-8 w-8 place-items-center rounded-full text-red-700 transition hover:bg-red-100"
                       onClick={() => {
                         onDelete(item.id);
@@ -222,7 +224,7 @@ export function WishlistBuilder({
             type="button"
           >
             <Icon name="plus" size={19} />
-            Add Another Item or Custom Wish
+            {t("create.wishlist.add")}
           </button>
         </>
       )}

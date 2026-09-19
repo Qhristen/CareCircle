@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslation } from "react-i18next";
 import { Icon } from "@/components/ui/icon";
 import { wizardSteps } from "@/lib/create-circle-data";
 
@@ -8,8 +11,11 @@ export function WizardStepper({
   currentStep: number;
   onStepChange: (step: number) => void;
 }) {
+  const { t } = useTranslation();
+  const stepLabels = t("create.progress.steps", { returnObjects: true }) as string[];
+
   return (
-    <section aria-label="Circle creation progress" className="mb-8 rounded-2xl bg-white p-6 shadow-soft">
+    <section aria-label={t("create.progress.label")} className="mb-8 rounded-2xl bg-white p-6 shadow-soft">
       <ol className="grid grid-cols-2 gap-5 md:grid-cols-5">
         {wizardSteps.map((step, index) => {
           const number = index + 1;
@@ -45,11 +51,11 @@ export function WizardStepper({
                         : "text-on-surface-variant"
                     }`}
                   >
-                    Step {number}
-                    {complete ? " • Completed" : current ? " • Current" : ""}
+                    {t("create.progress.step", { number })}
+                    {complete ? ` • ${t("create.progress.completed")}` : current ? ` • ${t("create.progress.current")}` : ""}
                   </span>
                   <span className="block truncate text-[13px] font-bold text-on-surface">
-                    {step}
+                    {stepLabels[index] ?? step}
                   </span>
                 </span>
               </button>

@@ -1,36 +1,41 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useTranslation } from "react-i18next";
 import { Icon } from "@/components/ui/icon";
 import { spotlightImage } from "@/lib/explore-data";
 
 const stats = [
   {
     value: "₦84.2M+",
-    label: "Delivered with Care",
-    note: "Direct vendor clearing",
+    labelKey: "explore.hero.stats.deliveredLabel",
+    noteKey: "explore.hero.stats.deliveredNote",
     color: "text-primary",
   },
   {
     value: "1,420+",
-    label: "Circles Completed",
-    note: "Families & work teams",
+    labelKey: "explore.hero.stats.completedLabel",
+    noteKey: "explore.hero.stats.completedNote",
     color: "text-secondary",
   },
   {
     value: "99.4%",
-    label: "Fulfillment Rate",
-    note: "Verified deliveries",
+    labelKey: "explore.hero.stats.fulfillmentLabel",
+    noteKey: "explore.hero.stats.fulfillmentNote",
     color: "text-tertiary",
   },
   {
-    value: "Zero",
-    label: "Spreadsheet Stress",
-    note: "Automated transparency",
+    valueKey: "explore.hero.stats.zeroValue",
+    labelKey: "explore.hero.stats.stressLabel",
+    noteKey: "explore.hero.stats.stressNote",
     color: "text-primary",
   },
 ];
 
 export function ExploreHero() {
+  const { t } = useTranslation();
+
   return (
     <section
       className="relative scroll-mt-20 overflow-hidden bg-surface-container-low pb-12"
@@ -44,9 +49,9 @@ export function ExploreHero() {
           <div className="z-10 space-y-5 lg:col-span-7">
             <div className="inline-flex max-w-full flex-wrap items-center gap-2 rounded-full bg-surface-container px-3.5 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.12em] shadow-sm sm:text-[11px]">
               <span className="h-2 w-2 animate-pulse rounded-full bg-primary" />
-              <span className="text-primary">Pan-African Mutual Joy & Care</span>
+              <span className="text-primary">{t("explore.hero.eyebrow")}</span>
               <span className="text-outline">•</span>
-              <span className="text-on-surface-variant">Live in 12 Cities</span>
+              <span className="text-on-surface-variant">{t("explore.hero.liveCities")}</span>
             </div>
             {/* 
             <h1 className="max-w-3xl text-[36px] font-extrabold leading-[1.13] tracking-[-0.035em] text-on-surface sm:text-[44px] sm:leading-[1.15]">
@@ -54,12 +59,12 @@ export function ExploreHero() {
               <span className="italic text-primary">collective support.</span>
             </h1> */}
 
-            <h1 className="max-w-3xl text-[36px] font-extrabold leading-[1.13] tracking-[-0.035em] text-on-surface sm:text-[44px] sm:leading-[1.15]">Turning community generosity into <span className="text-primary italic pr-2">coordinated support</span> when it matters most.</h1>
+            <h1 className="max-w-3xl text-[36px] font-extrabold leading-[1.13] tracking-[-0.035em] text-on-surface sm:text-[44px] sm:leading-[1.15]">
+              {t("explore.hero.titleStart")} <span className="pr-2 italic text-primary">{t("explore.hero.titleEmphasis")}</span> {t("explore.hero.titleEnd")}
+            </h1>
 
             <p className="max-w-xl text-base leading-7 text-on-surface-variant">
-              Join friends, families, and colleagues across Nigeria and beyond
-              to celebrate milestones and stand by each other in moments that
-              matter.
+              {t("explore.hero.description")}
             </p>
 
             <div className="flex flex-wrap items-center gap-3 pt-1">
@@ -68,14 +73,14 @@ export function ExploreHero() {
                 href="/create-circle"
               >
                 <Icon name="heart" size={18} />
-                Start a Circle for Free
+                {t("explore.hero.startFree")}
               </Link>
               <Link
                 className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3.5 text-[13px] font-bold text-on-surface transition hover:bg-surface"
                 href="#active-circles"
               >
                 <Icon className="text-secondary" name="compass" size={18} />
-                Explore 140+ Open Circles
+                {t("explore.hero.exploreOpen")}
               </Link>
             </div>
 
@@ -95,8 +100,7 @@ export function ExploreHero() {
                 ))}
               </div>
               <span>
-                Organized with dignity • Escrow-backed • Direct verified
-                disbursement
+                {t("explore.hero.trustLine")}
               </span>
             </div>
           </div>
@@ -106,17 +110,17 @@ export function ExploreHero() {
               <div className="mb-3 flex items-center justify-between gap-3">
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-tertiary-fixed px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-on-tertiary-fixed">
                   <Icon name="heart" size={14} />
-                  Urgent Medical Appeal
+                  {t("explore.hero.urgentAppeal")}
                 </span>
                 <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-secondary">
                   <span className="h-1.5 w-1.5 rounded-full bg-secondary" />
-                  Live Updates
+                  {t("explore.hero.liveUpdates")}
                 </span>
               </div>
 
               <div className="relative my-3 h-48 overflow-hidden rounded-xl">
                 <Image
-                  alt="A loved one holding Mariam's hand during her hospital recovery"
+                  alt={t("explore.hero.spotlightAlt")}
                   className="object-cover"
                   fill
                   priority
@@ -125,10 +129,10 @@ export function ExploreHero() {
                 />
                 <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-[#211b18]/90 via-[#211b18]/20 to-transparent p-4">
                   <span className="text-[10px] font-extrabold uppercase tracking-wider text-primary-fixed">
-                    Emergency Trauma Care • Jos
+                    {t("explore.hero.spotlightCategory")}
                   </span>
                   <h2 className="mt-0.5 text-xl font-bold text-white">
-                    Mariam&apos;s Emergency Surgery &amp; Recovery
+                    {t("explore.hero.spotlightTitle")}
                   </h2>
                 </div>
               </div>
@@ -140,7 +144,7 @@ export function ExploreHero() {
                       ₦1,850,000
                     </span>
                     <span className="text-xs text-on-surface-variant">
-                      {" "}raised of ₦4,500,000
+                      {" "}{t("explore.hero.raisedOf", { goal: "₦4,500,000" })}
                     </span>
                   </div>
                   <span className="shrink-0 rounded-full bg-secondary-fixed px-2.5 py-1 text-[11px] font-extrabold text-on-secondary-fixed">
@@ -160,11 +164,10 @@ export function ExploreHero() {
                 <div className="flex items-center justify-between gap-3 text-xs text-on-surface-variant">
                   <span className="inline-flex items-center gap-1.5">
                     <Icon className="text-secondary" name="users" size={16} />
-                    <strong className="text-on-surface">96</strong> people
-                    contributing
+                    {t("explore.hero.peopleContributing", { count: 96 })}
                   </span>
                   <span className="inline-flex items-center gap-1 font-bold text-tertiary">
-                    <Icon name="alarm" size={15} />18 hours left
+                    <Icon name="alarm" size={15} />{t("explore.hero.hoursLeft", { count: 18 })}
                   </span>
                 </div>
                 <div className="flex items-center gap-2 pt-1">
@@ -172,10 +175,10 @@ export function ExploreHero() {
                     className="flex-1 rounded-full bg-primary py-2.5 text-[13px] font-bold text-white shadow-sm transition hover:bg-primary-container"
                     type="button"
                   >
-                    Help Fund Mariam&apos;s Surgery
+                    {t("explore.hero.helpMariam")}
                   </button>
                   <button
-                    aria-label="View treatment needs"
+                    aria-label={t("explore.hero.viewNeeds")}
                     className="grid h-10 w-10 place-items-center rounded-full bg-surface-container text-on-surface-variant transition hover:text-primary"
                     type="button"
                   >
@@ -192,15 +195,15 @@ export function ExploreHero() {
           id="impact"
         >
           {stats.map((stat) => (
-            <div className="flex flex-col" key={stat.label}>
+            <div className="flex flex-col" key={stat.labelKey}>
               <span className={`text-2xl font-extrabold tracking-tight ${stat.color}`}>
-                {stat.value}
+                {stat.valueKey ? t(stat.valueKey) : stat.value}
               </span>
               <span className="mt-0.5 text-[13px] font-extrabold text-on-surface">
-                {stat.label}
+                {t(stat.labelKey)}
               </span>
               <span className="text-[11px] leading-5 text-on-surface-variant">
-                {stat.note}
+                {t(stat.noteKey)}
               </span>
             </div>
           ))}

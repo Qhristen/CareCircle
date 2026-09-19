@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslation } from "react-i18next";
 import { Icon } from "@/components/ui/icon";
 import type { WishlistDetailItem } from "@/lib/circle-data";
 
@@ -32,20 +35,21 @@ export function WishlistSection({
   location: string;
   onFundItem: (item: WishlistDetailItem) => void;
 }) {
+  const { t } = useTranslation();
+
   return (
     <section aria-labelledby="wishlist-heading" className="space-y-4">
       <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
         <div>
           <h2 className="text-2xl font-bold text-on-surface" id="wishlist-heading">
-            Curated Support Wishlist
+            {t("circle.wishlist.title")}
           </h2>
           <p className="mt-1 text-sm leading-6 text-on-surface-variant">
-            Items are purchased centrally and delivered in one joyful package
-            directly to the recipient in {location}.
+            {t("circle.wishlist.description", { location })}
           </p>
         </div>
         <span className="w-fit rounded-full bg-surface-container-high px-3 py-1 text-xs font-bold text-on-surface">
-          {items?.length} Priority {items?.length === 1 ? "Item" : "Items"}
+          {t("circle.wishlist.priorityCount", { count: items?.length ?? 0 })}
         </span>
       </div>
 
@@ -70,7 +74,7 @@ export function WishlistSection({
                   <div className="flex flex-wrap items-center gap-2">
                     <h3 className="text-base font-bold text-on-surface">{item.name}</h3>
                     <span className={`rounded-full px-2 py-0.5 text-[11px] font-extrabold ${styles.badge}`}>
-                      {funded ? "Funded ✓" : `${naira(remaining)} remaining`}
+                      {funded ? t("circle.wishlist.funded") : t("circle.wishlist.remaining", { amount: naira(remaining) })}
                     </span>
                   </div>
                   <p className="mt-1 text-sm leading-6 text-on-surface-variant">
@@ -96,8 +100,8 @@ export function WishlistSection({
                         <div className={`h-full rounded-full ${styles.progress}`} style={{ width: `${percentage}%` }} />
                       </div>
                       <div className="mt-1 flex justify-between gap-3 text-xs text-on-surface-variant">
-                        <strong className="text-on-surface">{naira(item.raised)} raised</strong>
-                        <span>Target: {naira(item.goal)} ({percentage}%)</span>
+                        <strong className="text-on-surface">{t("circle.wishlist.raised", { amount: naira(item.raised) })}</strong>
+                        <span>{t("circle.wishlist.target", { amount: naira(item.goal), percent: percentage })}</span>
                       </div>
                     </div>
                   )}
@@ -106,7 +110,7 @@ export function WishlistSection({
 
               {funded ? (
                 <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-secondary-fixed px-3 py-2 text-xs font-bold text-secondary">
-                  <Icon name="check" size={15} /> Bundle Secured
+                  <Icon name="check" size={15} /> {t("circle.wishlist.bundleSecured")}
                 </span>
               ) : (
                 <button
@@ -118,7 +122,7 @@ export function WishlistSection({
                   onClick={() => onFundItem(item)}
                   type="button"
                 >
-                  {item.id === "carrier" ? `Fund remaining ${naira(remaining)}` : "Contribute to this item"}
+                  {item.id === "carrier" ? t("circle.wishlist.fundRemaining", { amount: naira(remaining) }) : t("circle.wishlist.contributeItem")}
                   <Icon name={item.id === "carrier" ? "arrow-right" : "plus"} size={15} />
                 </button>
               )}

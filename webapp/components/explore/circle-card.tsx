@@ -1,5 +1,8 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useTranslation } from "react-i18next";
 import { Icon } from "@/components/ui/icon";
 import { daysUntil, nairaFromKobo, presentOccasion } from "@/lib/circle-presenters";
 import type { Circle } from "@/types";
@@ -26,6 +29,7 @@ const accentStyles = {
 };
 
 export function CircleCard({ circle }: { circle: Circle }) {
+  const { t } = useTranslation();
   const funding = circle.funding ?? {
     currency: circle.currency ?? "NGN",
     goalKobo: Math.round(Number(circle.targetAmount ?? 0) * 100),
@@ -35,7 +39,7 @@ export function CircleCard({ circle }: { circle: Circle }) {
     closesAt: circle.deadline ?? "",
   };
   const organizer = circle.organizer ?? {
-    displayName: "CareCircle Organizer",
+    displayName: t("explore.card.defaultOrganizer"),
     verified: false,
   };
   const cover = circle.cover ?? {
@@ -79,7 +83,7 @@ export function CircleCard({ circle }: { circle: Circle }) {
             className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-extrabold shadow-sm ${styles.badge}`}
           >
             <span aria-hidden="true">{presentation.emoji}</span>
-            {presentation.label}
+            {t(`occasions.${circle.occasion}`, { defaultValue: t("occasions.other") })}
           </span>
           <span className="inline-flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-bold text-on-surface shadow-sm backdrop-blur-sm">
             <span aria-hidden="true" className="text-primary">
@@ -94,7 +98,7 @@ export function CircleCard({ circle }: { circle: Circle }) {
             {circle.title}
           </h2>
           <div className="mt-0.5 flex items-center gap-1.5 text-xs text-primary-fixed">
-            <span>Organized by {organizer.displayName}</span>
+            <span>{t("common.organizedBy", { name: organizer.displayName })}</span>
             {organizer.verified && <Icon className="shrink-0 text-secondary-fixed" name="check" size={14} />}
           </div>
         </div>
@@ -112,7 +116,7 @@ export function CircleCard({ circle }: { circle: Circle }) {
               </span>
             </div>
             <span className={`shrink-0 text-xs font-extrabold ${styles.metric}`}>
-              {percentage >= 100 ? "Goal met 🎉" : `${percentage}% funded`}
+              {percentage >= 100 ? t("common.goalMet") : t("common.funded", { percent: percentage })}
             </span>
           </div>
 
@@ -155,17 +159,17 @@ export function CircleCard({ circle }: { circle: Circle }) {
                 size={14}
               />
               {daysLeft === null
-                ? "Wrapping up"
-                : `${daysLeft} days left`}
+                ? t("explore.card.wrappingUp")
+                : t("common.dayLeft", { count: daysLeft })}
             </span>
           </div>
 
           <div className="flex items-center gap-2">
             <Link className={actionClassName} href={detailHref}>
-              Chip In Now
+              {t("explore.card.chipIn")}
             </Link>
             <button
-              aria-label={`Share ${circle.title}`}
+              aria-label={t("explore.card.share", { title: circle.title })}
               className="grid h-10 w-10 place-items-center rounded-full bg-surface-container text-on-surface-variant transition hover:bg-surface-container-high hover:text-primary"
               type="button"
             >

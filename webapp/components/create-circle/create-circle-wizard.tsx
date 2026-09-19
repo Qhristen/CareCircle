@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FormSection } from "@/components/create-circle/form-section";
 import { GoalSummary } from "@/components/create-circle/goal-summary";
 import { WishlistBuilder } from "@/components/create-circle/wishlist-builder";
@@ -25,6 +26,7 @@ function naira(value: number) {
 }
 
 export function CreateCircleWizard() {
+  const { t } = useTranslation();
   const router = useRouter();
   const [recipientName, setRecipientName] = useState("");
   const [relationship, setRelationship] = useState<CreateCircleDto["recipient"]["relationship"] | "">("");
@@ -71,15 +73,15 @@ export function CreateCircleWizard() {
           {
             id: 0,
             emoji: "💛",
-            name: "Flexible Community Cash Pool",
-            category: "Flexible Goal",
-            description: "Recipient-directed support",
+            name: t("create.wizard.cashPool"),
+            category: t("create.wizard.flexibleGoal"),
+            description: t("create.wizard.recipientDirected"),
             price: cashGoal,
-            priceNote: "Organizer Goal",
+            priceNote: t("create.wizard.organizerGoal"),
             accent: "primary",
           },
         ],
-    [cashGoal, items, mode],
+    [cashGoal, items, mode, t],
   );
 
   const goalTotal = useMemo(() => {
@@ -129,7 +131,7 @@ export function CreateCircleWizard() {
   async function copyShareLink() {
     const link = publishedCircle?.shareUrl;
     if (!link) {
-      setStatus("Publish the circle before copying its share link.");
+      setStatus(t("create.wizard.status.publishFirst"));
       return;
     }
     try {
@@ -146,14 +148,14 @@ export function CreateCircleWizard() {
       temporaryInput.remove();
     }
     setCopied(true);
-    setStatus("Shareable link copied to your clipboard.");
+    setStatus(t("create.wizard.status.copied"));
   }
 
   async function shareCircle() {
     if (!publishedCircle?.shareUrl) return;
     const shareData = {
       title,
-      text: `Join ${recipientName}'s CareCircle`,
+      text: t("create.wizard.shareText", { name: recipientName }),
       url: publishedCircle.shareUrl,
     };
 
@@ -165,7 +167,7 @@ export function CreateCircleWizard() {
       }
     } catch (error) {
       if (!(error instanceof DOMException && error.name === "AbortError")) {
-        setStatus("Sharing is unavailable here. Copy the link instead.");
+        setStatus(t("create.wizard.status.shareUnavailable"));
       }
     }
   }
@@ -178,10 +180,10 @@ export function CreateCircleWizard() {
         id,
         emoji: "🎁",
         name: "",
-        category: "Custom",
+        category: t("create.wizard.custom"),
         description: "",
         price: 0,
-        priceNote: "Organizer estimate",
+        priceNote: t("create.wizard.organizerEstimate"),
         accent: "primary",
       },
     ]);
@@ -189,21 +191,21 @@ export function CreateCircleWizard() {
   }
 
   function validateCircle() {
-    if (!recipientName.trim()) throw new Error("Enter the recipient's name.");
-    if (!relationship) throw new Error("Choose your relationship to the recipient.");
-    if (!occasion) throw new Error("Choose an occasion.");
-    if (occasion === "other" && !customOccasion.trim()) throw new Error("Describe the custom occasion.");
-    if (!title.trim()) throw new Error("Enter a circle title.");
-    if (!story.trim()) throw new Error("Write a short story for the circle.");
-    if (!coverImage) throw new Error("Upload a cover image before saving the circle.");
-    if (!deadline) throw new Error("Choose a deadline.");
-    if (mode === "cash" && cashGoal < 1000) throw new Error("Enter a cash goal of at least ₦1,000.");
-    if (mode === "itemized" && !items.length) throw new Error("Add at least one wishlist item.");
+    if (!recipientName.trim()) throw new Error(t("create.wizard.errors.recipient"));
+    if (!relationship) throw new Error(t("create.wizard.errors.relationship"));
+    if (!occasion) throw new Error(t("create.wizard.errors.occasion"));
+    if (occasion === "other" && !customOccasion.trim()) throw new Error(t("create.wizard.errors.customOccasion"));
+    if (!title.trim()) throw new Error(t("create.wizard.errors.title"));
+    if (!story.trim()) throw new Error(t("create.wizard.errors.story"));
+    if (!coverImage) throw new Error(t("create.wizard.errors.cover"));
+    if (!deadline) throw new Error(t("create.wizard.errors.deadline"));
+    if (mode === "cash" && cashGoal < 1000) throw new Error(t("create.wizard.errors.cashGoal"));
+    if (mode === "itemized" && !items.length) throw new Error(t("create.wizard.errors.wishlist"));
     if (mode === "itemized" && items.some((item) => !item.name.trim() || item.price < 1000)) {
-      throw new Error("Complete every wishlist item with a name and target of at least ₦1,000.");
+      throw new Error(t("create.wizard.errors.wishlistIncomplete"));
     }
     if (delivery === "now" && (!deliveryAddress.trim() || !deliveryCity.trim() || !deliveryState.trim())) {
-      throw new Error("Complete the recipient's delivery address.");
+      throw new Error(t("create.wizard.errors.address"));
     }
   }
 
@@ -254,12 +256,12 @@ export function CreateCircleWizard() {
   async function saveDraft() {
     validateCircle();
     if (draftId) return draftId;
-    setStatus(coverFile ? "Uploading cover image…" : "Saving your circle draft…");
+    setStatus(coverFile ? t("create.wizard.status.uploading") : t("create.wizard.status.saving"));
     const coverUrl = coverFile ? await uploadCover(coverFile).unwrap() : coverImage;
     const draft = await createCircle(circlePayload(coverUrl)).unwrap();
     setDraftId(draft.data.id);
     if (coverFile) setCoverImage(coverUrl);
-    setStatus("Draft saved securely. You can publish it when ready.");
+    setStatus(t("create.wizard.status.saved"));
     return draft.data.id;
   }
 
@@ -268,13 +270,13 @@ export function CreateCircleWizard() {
     setStatus("");
     try {
       const id = await saveDraft();
-      setStatus("Publishing your CareCircle…");
+      setStatus(t("create.wizard.status.publishing"));
       const published = await publishCircle({ id, idempotencyKey: crypto.randomUUID() }).unwrap();
       setPublishedCircle(published.data);
-      setStatus("Circle published — opening its organizer dashboard…");
+      setStatus(t("create.wizard.status.published"));
       router.push(`/organizer/circles/${published.data.id}`);
     } catch (error) {
-      setStatus(getApiErrorMessage(error, "Your circle could not be published."));
+      setStatus(getApiErrorMessage(error, t("create.wizard.errors.publish")));
     } finally {
       setSubmitting(false);
     }
@@ -310,19 +312,18 @@ export function CreateCircleWizard() {
             <div>
               <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-surface-container-high px-3 py-1.5 text-xs font-extrabold uppercase tracking-wider text-primary">
                 <Icon name="wand" size={15} />
-                Organizer Creation Suite
+                {t("create.wizard.suite")}
               </div>
               <h1 className="max-w-4xl text-3xl font-extrabold leading-tight tracking-[-0.03em] text-on-surface sm:text-4xl">
-                Create a CareCircle for Someone Special
+                {t("create.wizard.title")}
               </h1>
               <p className="mt-2 max-w-2xl text-base leading-7 text-on-surface-variant">
-                Honor life&apos;s milestones with collective warmth. Replace fragmented
-                account numbers and coordination chaos with an itemized bundle wishlist.
+                {t("create.wizard.description")}
               </p>
             </div>
             <span className="inline-flex self-start items-center gap-2 rounded-full bg-secondary-fixed px-3 py-1.5 text-xs font-extrabold text-on-secondary-fixed md:self-auto">
               <span className={`h-2 w-2 rounded-full ${draftId ? "bg-secondary" : "bg-outline"}`} />
-              {draftId ? "Draft saved" : "Unsaved draft"}
+              {draftId ? t("create.wizard.draftSaved") : t("create.wizard.unsavedDraft")}
             </span>
           </div>
 
@@ -331,21 +332,21 @@ export function CreateCircleWizard() {
           <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
             <div className="space-y-8 lg:col-span-8">
               <FormSection
-                description="Set the recipient identity and cultural vibe for the collective support pool."
+                description={t("create.wizard.recipientSection")}
                 id="recipient-section"
                 letter="A"
                 symbol=""
-                title="Who are you celebrating or supporting?"
+                title={t("create.wizard.recipientTitle")}
               >
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <label className="space-y-2 text-[13px] font-bold text-on-surface">
-                    <span>Recipient Full Name <span className="text-primary">*</span></span>
+                    <span>{t("create.wizard.recipientName")} <span className="text-primary">*</span></span>
                     <div className="relative">
                       <Icon className="absolute left-4 top-1/2 -translate-y-1/2 text-outline" name="user" size={17} />
                       <input
                         className={`${fieldClass} pl-10`}
                         onChange={(event) => setRecipientName(event.target.value)}
-                        placeholder="Enter recipient's full name"
+                        placeholder={t("create.wizard.recipientPlaceholder")}
                         required
                         type="text"
                         value={recipientName}
@@ -353,21 +354,21 @@ export function CreateCircleWizard() {
                     </div>
                   </label>
                   <label className="space-y-2 text-[13px] font-bold text-on-surface">
-                    <span>Your Relationship <span className="text-primary">*</span></span>
+                    <span>{t("create.wizard.relationship")} <span className="text-primary">*</span></span>
                     <select className={fieldClass} onChange={(event) => setRelationship(event.target.value as typeof relationship)} required value={relationship}>
-                      <option disabled value="">Select relationship</option>
-                      <option value="friend">Friend / Colleague</option>
-                      <option value="family">Family / Sibling</option>
-                      <option value="partner">Partner / Spouse</option>
-                      <option value="organizer">Community Organizer / Mentor</option>
-                      <option value="faith">Fellow Church / Mosque Member</option>
+                      <option disabled value="">{t("create.wizard.selectRelationship")}</option>
+                      <option value="friend">{t("create.wizard.relationships.friend")}</option>
+                      <option value="family">{t("create.wizard.relationships.family")}</option>
+                      <option value="partner">{t("create.wizard.relationships.partner")}</option>
+                      <option value="organizer">{t("create.wizard.relationships.organizer")}</option>
+                      <option value="faith">{t("create.wizard.relationships.faith")}</option>
                     </select>
                   </label>
                 </div>
 
                 <fieldset>
                   <legend className="mb-3 text-[13px] font-bold text-on-surface">
-                    Select Celebration or Solidarity Occasion
+                    {t("create.wizard.occasionLegend")}
                   </legend>
                   <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                     {occasions.map((item) => {
@@ -384,9 +385,9 @@ export function CreateCircleWizard() {
                           type="button"
                         >
                           <span className="mb-1 text-2xl">{item.emoji}</span>
-                          <span className="text-xs font-extrabold">{item.label}</span>
+                          <span className="text-xs font-extrabold">{t(`create.occasions.${item.id}.label`)}</span>
                           <span className={`text-[11px] ${selected ? "text-white/80" : "text-on-surface-variant"}`}>
-                            {item.note}
+                            {t(`create.occasions.${item.id}.note`)}
                           </span>
                         </button>
                       );
@@ -394,13 +395,13 @@ export function CreateCircleWizard() {
                   </div>
                   {occasion === "other" && (
                     <label className="mt-4 block space-y-2 text-[13px] font-bold text-on-surface">
-                      <span>Describe the occasion <span className="text-primary">*</span></span>
+                      <span>{t("create.wizard.occasionOther")} <span className="text-primary">*</span></span>
                       <input
                         autoFocus
                         className={fieldClass}
                         maxLength={80}
                         onChange={(event) => setCustomOccasion(event.target.value)}
-                        placeholder="e.g. Retirement celebration"
+                        placeholder={t("create.wizard.occasionPlaceholder")}
                         required
                         value={customOccasion}
                       />
@@ -410,22 +411,22 @@ export function CreateCircleWizard() {
               </FormSection>
 
               <FormSection
-                description="Write the narrative that moves friends and family to give generously."
+                description={t("create.wizard.storySection")}
                 id="story-section"
                 letter="B"
                 symbol="❝"
-                title="The Story & Motivation"
+                title={t("create.wizard.storyTitle")}
               >
                 <label className="block space-y-2">
                   <span className="flex items-center justify-between gap-3 text-[13px] font-bold text-on-surface">
-                    <span>Circle Campaign Title</span>
-                    <span className="text-xs font-normal text-outline">{title.length} / 80 characters</span>
+                    <span>{t("create.wizard.campaignTitle")}</span>
+                    <span className="text-xs font-normal text-outline">{t("create.wizard.characters", { count: title.length })}</span>
                   </span>
                   <input
                     className={`${fieldClass} text-base font-bold`}
                     maxLength={80}
                     onChange={(event) => setTitle(event.target.value)}
-                    placeholder="Give your circle a clear title"
+                    placeholder={t("create.wizard.campaignPlaceholder")}
                     required
                     value={title}
                   />
@@ -433,7 +434,7 @@ export function CreateCircleWizard() {
 
                 <div className="space-y-2">
                   <label className="block text-[13px] font-bold text-on-surface" htmlFor="circle-story">
-                    Heartfelt Story
+                    {t("create.wizard.heartfeltStory")}
                   </label>
                   <div className="overflow-hidden rounded-lg bg-surface-container-low">
                     {/* <div className="flex items-center gap-1 bg-surface-container-high p-1.5">
@@ -468,7 +469,7 @@ export function CreateCircleWizard() {
                       className="w-full resize-none bg-transparent p-4 text-sm leading-6 text-on-surface outline-none"
                       id="circle-story"
                       onChange={(event) => setStory(event.target.value)}
-                      placeholder="Tell contributors who this is for, why it matters, and how their support will help."
+                      placeholder={t("create.wizard.storyPlaceholder")}
                       ref={storyRef}
                       required
                       rows={5}
@@ -478,12 +479,12 @@ export function CreateCircleWizard() {
                 </div>
 
                 <div className="space-y-2">
-                  <span className="text-[13px] font-bold text-on-surface">Campaign Cover Visual</span>
+                  <span className="text-[13px] font-bold text-on-surface">{t("create.wizard.cover")}</span>
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
                     <div className="group relative h-48 overflow-hidden rounded-xl bg-surface-container-low shadow-inner md:col-span-8">
                       {coverImage ? (
                         <>
-                          <Image alt="Selected CareCircle cover" className="object-cover transition duration-700 group-hover:scale-105" fill sizes="(max-width: 767px) 100vw, 55vw" src={coverImage} unoptimized={coverImage.startsWith("blob:")} />
+                          <Image alt={t("create.wizard.coverAlt")} className="object-cover transition duration-700 group-hover:scale-105" fill sizes="(max-width: 767px) 100vw, 55vw" src={coverImage} unoptimized={coverImage.startsWith("blob:")} />
                           <div className="absolute inset-0 flex items-end justify-between gap-3 bg-gradient-to-t from-black/70 via-transparent to-transparent p-4">
                             <p className="truncate text-sm font-bold text-white">{coverName}</p>
                             <span className="grid h-9 w-9 place-items-center rounded-full bg-white/90 text-primary"><Icon name="image" size={16} /></span>
@@ -491,14 +492,14 @@ export function CreateCircleWizard() {
                         </>
                       ) : (
                         <div className="grid h-full place-items-center p-6 text-center text-on-surface-variant">
-                          <div><Icon className="mx-auto text-outline" name="image" size={32} /><p className="mt-2 text-sm font-bold">No cover image selected</p><p className="mt-1 text-xs">Upload an image that represents this circle.</p></div>
+                          <div><Icon className="mx-auto text-outline" name="image" size={32} /><p className="mt-2 text-sm font-bold">{t("create.wizard.noCover")}</p><p className="mt-1 text-xs">{t("create.wizard.coverHelp")}</p></div>
                         </div>
                       )}
                     </div>
                     <label className={`flex h-48 flex-col items-center justify-center rounded-xl border-2 border-dashed border-outline/30 bg-surface-container-low p-4 text-center transition md:col-span-4 ${canUploadCover ? "cursor-pointer hover:bg-surface-container" : "cursor-not-allowed opacity-60"}`}>
                       <Icon className="mb-2 text-primary" name="image" size={30} />
-                      <span className="text-[13px] font-bold text-on-surface">Upload Custom File</span>
-                      <span className="mt-1 text-xs text-on-surface-variant">{canUploadCover ? "PNG, JPG or WebP up to 10MB" : "Configure Cloudinary to upload a custom cover"}</span>
+                      <span className="text-[13px] font-bold text-on-surface">{t("create.wizard.upload")}</span>
+                      <span className="mt-1 text-xs text-on-surface-variant">{canUploadCover ? t("create.wizard.uploadHelp") : t("create.wizard.uploadDisabled")}</span>
                       <input
                         accept="image/png,image/jpeg,image/webp"
                         className="sr-only"
@@ -507,13 +508,13 @@ export function CreateCircleWizard() {
                           const file = event.target.files?.[0];
                           if (!file) return;
                           if (file.size > 10 * 1024 * 1024) {
-                            setStatus("Please select an image smaller than 10MB.");
+                            setStatus(t("create.wizard.imageTooLarge"));
                             return;
                           }
                           setCoverImage(URL.createObjectURL(file));
                           setCoverName(file.name);
                           setCoverFile(file);
-                          setStatus("Campaign cover updated.");
+                          setStatus(t("create.wizard.coverUpdated"));
                         }}
                         type="file"
                       />
@@ -545,19 +546,19 @@ export function CreateCircleWizard() {
               </section>
 
               <FormSection
-                description="Keep it confidential as a surprise or open for broad diaspora participation."
+                description={t("create.wizard.privacySection")}
                 id="privacy-section"
                 letter="D"
                 symbol="🔒"
-                title="Privacy, Deadline & Fulfillment Setup"
+                title={t("create.wizard.privacyTitle")}
               >
                 <fieldset>
-                  <legend className="mb-3 text-[13px] font-bold text-on-surface">Circle Privacy Mode</legend>
+                  <legend className="mb-3 text-[13px] font-bold text-on-surface">{t("create.wizard.privacyMode")}</legend>
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                     {[
-                      ["link", "🔗", "Link-Only Circle", "Anyone with your private link can view & give."],
-                      ["invite", "🔑", "Private Invite Only", "Organizer manually approves donor access"],
-                      ["public", "🌍", "Public Community", "Searchable on CareCircle Explore for open mutual aid."],
+                      ["link", "🔗", t("create.wizard.privacy.linkTitle"), t("create.wizard.privacy.linkBody")],
+                      ["invite", "🔑", t("create.wizard.privacy.inviteTitle"), t("create.wizard.privacy.inviteBody")],
+                      ["public", "🌍", t("create.wizard.privacy.publicTitle"), t("create.wizard.privacy.publicBody")],
                     ].map(([value, emoji, label, description], index) => (
                       <label
                         className={`flex cursor-pointer flex-col rounded-xl border p-4 transition ${privacy === value
@@ -579,7 +580,7 @@ export function CreateCircleWizard() {
                         </span>
                         <span className="text-[15px] font-bold text-on-surface">{label}</span>
                         <span className="mt-1 text-sm leading-6 text-on-surface-variant">{description}</span>
-                        {index === 0 && <span className="mt-2 w-max rounded-full bg-primary-fixed px-2 py-0.5 text-[11px] font-extrabold text-on-primary-fixed">Recommended</span>}
+                        {index === 0 && <span className="mt-2 w-max rounded-full bg-primary-fixed px-2 py-0.5 text-[11px] font-extrabold text-on-primary-fixed">{t("create.wizard.recommended")}</span>}
                       </label>
                     ))}
                   </div>
@@ -587,15 +588,15 @@ export function CreateCircleWizard() {
 
                 <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                   <label className="space-y-2 text-[13px] font-bold text-on-surface">
-                    <span>Target Deadline Date</span>
+                    <span>{t("create.wizard.deadline")}</span>
                     <div className="relative">
                       <Icon className="absolute left-4 top-1/2 -translate-y-1/2 text-outline" name="calendar" size={17} />
                       <input className={`${fieldClass} pl-10`} min={new Date().toISOString().slice(0, 10)} onChange={(event) => setDeadline(event.target.value)} required type="date" value={deadline} />
                     </div>
-                    <span className="block text-xs font-normal leading-5 text-on-surface-variant">Choose when contributions should close.</span>
+                    <span className="block text-xs font-normal leading-5 text-on-surface-variant">{t("create.wizard.deadlineHelp")}</span>
                   </label>
                   <fieldset>
-                    <legend className="mb-2 text-[13px] font-bold text-on-surface">Recipient Delivery & Address</legend>
+                    <legend className="mb-2 text-[13px] font-bold text-on-surface">{t("create.wizard.delivery")}</legend>
                     <label className="flex cursor-pointer items-start gap-2 text-sm leading-6 text-on-surface">
                       <input
                         checked={delivery === "now"}
@@ -604,22 +605,22 @@ export function CreateCircleWizard() {
                         onChange={() => setDelivery("now")}
                         type="radio"
                       />
-                      I will provide {recipientName || "the recipient"}&apos;s delivery address now
+                      {t("create.wizard.provideAddress", { name: recipientName || t("create.wizard.recipientFallback") })}
                     </label>
                     {delivery === "now" && (
                       <>
                         <input
-                          aria-label="Recipient delivery address"
+                          aria-label={t("create.wizard.addressLabel")}
                           className={`${fieldClass} mt-2`}
                           onChange={(event) => setDeliveryAddress(event.target.value)}
-                          placeholder="Enter delivery address"
+                          placeholder={t("create.wizard.addressPlaceholder")}
                           required
                           type="text"
                           value={deliveryAddress}
                         />
                         <div className="mt-2 grid grid-cols-2 gap-2">
-                          <input aria-label="Delivery city" className={fieldClass} onChange={(event) => setDeliveryCity(event.target.value)} placeholder="City" required value={deliveryCity} />
-                          <input aria-label="Delivery state" className={fieldClass} onChange={(event) => setDeliveryState(event.target.value)} placeholder="State" required value={deliveryState} />
+                          <input aria-label={t("create.wizard.city")} className={fieldClass} onChange={(event) => setDeliveryCity(event.target.value)} placeholder={t("create.wizard.city")} required value={deliveryCity} />
+                          <input aria-label={t("create.wizard.state")} className={fieldClass} onChange={(event) => setDeliveryState(event.target.value)} placeholder={t("create.wizard.state")} required value={deliveryState} />
                         </div>
                       </>
                     )}
@@ -631,9 +632,9 @@ export function CreateCircleWizard() {
                         onChange={() => setDelivery("ask")}
                         type="radio"
                       />
-                      Ask {recipientName || "the recipient"} privately when the goal is reached
+                      {t("create.wizard.askPrivately", { name: recipientName || t("create.wizard.recipientFallback") })}
                     </label>
-                    <p className="mt-2 text-xs leading-5 text-on-surface-variant">Preserves the surprise until the circle is complete.</p>
+                    <p className="mt-2 text-xs leading-5 text-on-surface-variant">{t("create.wizard.surpriseHelp")}</p>
                   </fieldset>
                 </div>
               </FormSection>
@@ -653,14 +654,14 @@ export function CreateCircleWizard() {
           <div className="mx-auto flex max-w-[1240px] flex-col items-center justify-between gap-4 px-0 sm:flex-row sm:px-2">
             <div className="flex w-full items-center justify-between gap-3 sm:w-auto sm:justify-start">
               <button className="inline-flex items-center gap-1.5 text-sm font-bold text-on-surface-variant hover:text-on-surface" onClick={() => goToStep(1)} type="button">
-                <Icon name="arrow-left" size={15} /> Back to Step 1
+                <Icon name="arrow-left" size={15} /> {t("create.wizard.backStep")}
               </button>
-              <span className="hidden items-center gap-1.5 text-xs text-on-surface-variant md:inline-flex"><Icon name="cloud" size={14} /> {draftId ? "Draft saved to CareCircle" : "Changes are only on this device"}</span>
+              <span className="hidden items-center gap-1.5 text-xs text-on-surface-variant md:inline-flex"><Icon name="cloud" size={14} /> {draftId ? t("create.wizard.draftCloudSaved") : t("create.wizard.deviceOnly")}</span>
             </div>
             <div className="flex w-full items-center justify-end gap-2 sm:w-auto">
-              <button className="rounded-full bg-surface-container px-5 py-2.5 text-sm font-bold text-on-surface hover:bg-surface-container-high disabled:opacity-60" disabled={submitting || Boolean(draftId)} onClick={async () => { setSubmitting(true); try { await saveDraft(); } catch (error) { setStatus(getApiErrorMessage(error, "Your draft could not be saved.")); } finally { setSubmitting(false); } }} type="button">{draftId ? "Draft Saved" : "Save Draft"}</button>
-              <button className="hidden items-center gap-1.5 rounded-full bg-surface-container px-4 py-2.5 text-sm font-bold text-on-surface hover:bg-surface-container-high md:inline-flex" onClick={() => { setCurrentStep(5); setDialog("preview"); }} type="button"><Icon name="eye" size={15} /> Preview</button>
-              <button className="flex flex-1 items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-extrabold text-white shadow-lg transition hover:bg-primary-container active:scale-95 disabled:cursor-wait disabled:opacity-70 sm:flex-initial" disabled={submitting} type="submit">{submitting ? "Publishing…" : "Publish Circle & Get Shareable Link"} {!submitting && <Icon name="arrow-right" size={16} />}</button>
+              <button className="rounded-full bg-surface-container px-5 py-2.5 text-sm font-bold text-on-surface hover:bg-surface-container-high disabled:opacity-60" disabled={submitting || Boolean(draftId)} onClick={async () => { setSubmitting(true); try { await saveDraft(); } catch (error) { setStatus(getApiErrorMessage(error, t("create.wizard.errors.draft"))); } finally { setSubmitting(false); } }} type="button">{draftId ? t("create.wizard.draftSaved") : t("create.wizard.saveDraft")}</button>
+              <button className="hidden items-center gap-1.5 rounded-full bg-surface-container px-4 py-2.5 text-sm font-bold text-on-surface hover:bg-surface-container-high md:inline-flex" onClick={() => { setCurrentStep(5); setDialog("preview"); }} type="button"><Icon name="eye" size={15} /> {t("create.wizard.preview")}</button>
+              <button className="flex flex-1 items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-extrabold text-white shadow-lg transition hover:bg-primary-container active:scale-95 disabled:cursor-wait disabled:opacity-70 sm:flex-initial" disabled={submitting} type="submit">{submitting ? t("create.wizard.publishing") : t("create.wizard.publishShare")} {!submitting && <Icon name="arrow-right" size={16} />}</button>
             </div>
           </div>
           {status && <p aria-live="polite" className="mx-auto mt-2 max-w-[1240px] text-center text-xs font-bold text-secondary">{status}</p>}
@@ -676,7 +677,7 @@ export function CreateCircleWizard() {
         >
           <div className="relative my-8 w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-[0_30px_80px_-30px_rgba(0,0,0,0.6)]">
             <button
-              aria-label="Close dialog"
+              aria-label={t("create.wizard.closeDialog")}
               className="absolute right-4 top-4 z-10 grid h-9 w-9 place-items-center rounded-full bg-white/90 text-on-surface shadow-sm hover:bg-white"
               onClick={() => setDialog(null)}
               type="button"
@@ -693,7 +694,7 @@ export function CreateCircleWizard() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/65 to-transparent" />
               <span className="absolute bottom-4 left-5 rounded-full bg-primary px-3 py-1 text-xs font-bold text-white">
                 {occasions.find((item) => item.id === occasion)?.emoji}{" "}
-                {occasion === "other" ? customOccasion || "Other occasion" : occasions.find((item) => item.id === occasion)?.label || "Occasion not selected"}
+                {occasion === "other" ? customOccasion || t("create.wizard.otherOccasion") : occasion ? t(`create.occasions.${occasion}.label`) : t("create.wizard.occasionMissing")}
               </span>
             </div>
 
@@ -704,29 +705,29 @@ export function CreateCircleWizard() {
                     <Icon name="check" size={19} />
                   </span>
                   <div>
-                    <p className="text-sm font-extrabold">Your CareCircle is live</p>
-                    <p className="text-xs text-on-secondary-fixed">Share the link and start gathering support.</p>
+                    <p className="text-sm font-extrabold">{t("create.wizard.live")}</p>
+                    <p className="text-xs text-on-secondary-fixed">{t("create.wizard.liveHelp")}</p>
                   </div>
                 </div>
               )}
 
               <p className="text-xs font-extrabold uppercase tracking-wider text-primary">
-                {dialog === "published" ? "Published Circle" : "Contributor Preview"}
+                {dialog === "published" ? t("create.wizard.published") : t("create.wizard.contributorPreview")}
               </p>
               <h2 className="mt-1 pr-8 text-2xl font-extrabold leading-tight text-on-surface" id="circle-dialog-title">
                 {title}
               </h2>
               <p className="mt-1 text-sm text-on-surface-variant">
-                For {recipientName} • {privacy === "link" ? "Link-only" : privacy === "invite" ? "Private invite" : "Public community"}
+                {t("create.wizard.forRecipient", { name: recipientName, privacy: privacy === "link" ? t("create.wizard.linkPrivacy") : privacy === "invite" ? t("create.wizard.invitePrivacy") : t("create.wizard.publicPrivacy") })}
               </p>
               <p className="mt-4 line-clamp-3 text-sm leading-6 text-on-surface-variant">{story}</p>
 
               <div className="mt-5 flex items-end justify-between gap-4 rounded-xl bg-surface-container-low p-4">
                 <div>
-                  <p className="text-xs font-bold text-on-surface-variant">Funding goal</p>
+                  <p className="text-xs font-bold text-on-surface-variant">{t("create.wizard.fundingGoal")}</p>
                   <p className="text-2xl font-extrabold text-primary">{naira(goalTotal)}</p>
                 </div>
-                <p className="text-sm font-bold text-secondary">{summaryItems.length} wishlist item{summaryItems.length === 1 ? "" : "s"}</p>
+                <p className="text-sm font-bold text-secondary">{t("create.wizard.wishlistCount", { count: summaryItems.length })}</p>
               </div>
 
               {dialog === "published" ? (
@@ -734,18 +735,18 @@ export function CreateCircleWizard() {
                   <div className="flex items-center justify-between gap-3 rounded-lg border border-on-surface/10 px-3 py-2.5 text-sm">
                     <span className="truncate text-on-surface-variant">{publishedCircle?.shareUrl}</span>
                     <button className="shrink-0 font-bold text-primary" onClick={copyShareLink} type="button">
-                      {copied ? "Copied ✓" : "Copy"}
+                      {copied ? t("create.wizard.copied") : t("create.wizard.copy")}
                     </button>
                   </div>
                   <div className="flex gap-2">
-                    <button className="flex-1 rounded-full bg-primary px-5 py-3 text-sm font-extrabold text-white hover:bg-primary-container" onClick={shareCircle} type="button">Share Circle</button>
-                    <button className="rounded-full bg-surface-container px-5 py-3 text-sm font-bold text-on-surface hover:bg-surface-container-high" onClick={() => setDialog(null)} type="button">Done</button>
+                    <button className="flex-1 rounded-full bg-primary px-5 py-3 text-sm font-extrabold text-white hover:bg-primary-container" onClick={shareCircle} type="button">{t("create.wizard.share")}</button>
+                    <button className="rounded-full bg-surface-container px-5 py-3 text-sm font-bold text-on-surface hover:bg-surface-container-high" onClick={() => setDialog(null)} type="button">{t("create.wizard.done")}</button>
                   </div>
                 </div>
               ) : (
                 <div className="mt-5 flex gap-2">
-                  <button className="flex-1 rounded-full bg-surface-container px-5 py-3 text-sm font-bold text-on-surface hover:bg-surface-container-high" onClick={() => { setCurrentStep(2); setDialog(null); }} type="button">Keep Editing</button>
-                  <button className="flex-1 rounded-full bg-primary px-5 py-3 text-sm font-extrabold text-white hover:bg-primary-container disabled:opacity-70" disabled={submitting} onClick={handlePublish} type="button">{submitting ? "Publishing…" : "Publish Circle"}</button>
+                  <button className="flex-1 rounded-full bg-surface-container px-5 py-3 text-sm font-bold text-on-surface hover:bg-surface-container-high" onClick={() => { setCurrentStep(2); setDialog(null); }} type="button">{t("create.wizard.keepEditing")}</button>
+                  <button className="flex-1 rounded-full bg-primary px-5 py-3 text-sm font-extrabold text-white hover:bg-primary-container disabled:opacity-70" disabled={submitting} onClick={handlePublish} type="button">{submitting ? t("create.wizard.publishing") : t("create.wizard.publish")}</button>
                 </div>
               )}
             </div>

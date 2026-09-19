@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Logo } from "@/components/brand/logo";
+import { LanguageSwitcher } from "@/components/site/language-switcher";
 import { Icon } from "@/components/ui/icon";
 import { baseApi } from "@/lib/store/api/baseApi";
 import { useLogoutMutation } from "@/lib/store/api/authApi";
@@ -11,13 +13,14 @@ import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import { logout as clearSession } from "@/lib/store/slices/authSlice";
 
 const navigation = [
-  { label: "Explore Circles", href: "/explore-circles" },
-  { label: "How It Works", href: "/explore-circles#how-it-works" },
-  { label: "Active Circles", href: "/explore-circles#active-circles" },
+  { labelKey: "header.explore", href: "/explore-circles" },
+  { labelKey: "header.howItWorks", href: "/explore-circles#how-it-works" },
+  { labelKey: "header.activeCircles", href: "/explore-circles#active-circles" },
   // { label: "Stories & Impact", href: "/explore-circles#impact" },
 ];
 
 export function SiteHeader() {
+  const { t } = useTranslation();
   const router = useRouter();
   const dispatch = useAppDispatch();
   const pathname = usePathname();
@@ -49,7 +52,7 @@ export function SiteHeader() {
       <div className="mx-auto flex h-20 max-w-[1240px] items-center justify-between gap-4 px-4 sm:px-6">
         <div className="flex items-center gap-6">
           <Logo />
-          <nav aria-label="Primary navigation" className="hidden items-center gap-1 xl:flex">
+          <nav aria-label={t("header.primaryNavigation")} className="hidden items-center gap-1 xl:flex">
             {navigation.map((item) => {
               const active =
                 item.href === "/explore-circles" &&
@@ -63,9 +66,9 @@ export function SiteHeader() {
                       : "text-on-surface-variant hover:bg-surface-container hover:text-on-surface"
                     }`}
                   href={item.href}
-                  key={item.label}
+                  key={item.labelKey}
                 >
-                  {item.label}
+                  {t(item.labelKey)}
                 </Link>
               );
             })}
@@ -78,7 +81,7 @@ export function SiteHeader() {
             className="relative hidden w-full max-w-[292px] md:block"
           >
             <label className="sr-only" htmlFor="site-search">
-              Search CareCircle
+              {t("header.searchLabel")}
             </label>
             <Icon
               className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-outline"
@@ -89,7 +92,7 @@ export function SiteHeader() {
               className="w-full rounded-full bg-white py-2.5 pl-10 pr-4 text-xs text-on-surface outline-none ring-primary/20 placeholder:text-outline focus:ring-4"
               id="site-search"
               name="q"
-              placeholder="Search circles, recipients, or causes..."
+              placeholder={t("header.searchPlaceholder")}
               type="search"
             />
           </form>
@@ -99,23 +102,27 @@ export function SiteHeader() {
             href="/create-circle"
           >
             <Icon name="plus" size={17} />
-            <span className="hidden sm:inline">Start a Circle</span>
+            <span className="hidden sm:inline">{t("header.startCircle")}</span>
           </Link>
 
-          <button
-            aria-label="Notifications"
+          <div className="hidden sm:block">
+            <LanguageSwitcher compact />
+          </div>
+
+          {/* <button
+            aria-label={t("header.notifications")}
             className="relative grid h-10 w-10 shrink-0 place-items-center rounded-full text-on-surface-variant transition-colors hover:bg-surface-container hover:text-on-surface"
             type="button"
           >
             <Icon name="bell" size={19} />
             <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-primary ring-2 ring-surface" />
-          </button>
+          </button> */}
 
           {isAuthenticated && user ? (
             <div className="relative hidden lg:block">
               <button
                 aria-expanded={profileOpen}
-                aria-label="Open profile menu"
+                aria-label={t("header.openProfile")}
                 className="flex items-center gap-1 rounded-full p-1 transition hover:bg-surface-container"
                 onClick={() => setProfileOpen((open) => !open)}
                 type="button"
@@ -136,23 +143,23 @@ export function SiteHeader() {
                     href="/my-circles"
                     onClick={() => setProfileOpen(false)}
                   >
-                    My circles
+                    {t("header.myCircles")}
                   </Link>
                   <button className="mt-1 w-full rounded-lg px-3 py-2 text-left text-sm font-semibold text-on-surface-variant hover:bg-surface-container" onClick={handleLogout} type="button">
-                    Sign out
+                    {t("header.signOut")}
                   </button>
                 </div>
               )}
             </div>
           ) : (
             <Link className="hidden rounded-full px-3 py-2 text-sm font-bold text-primary hover:bg-primary-fixed lg:block" href="/sign-in">
-              Sign in
+              {t("header.signIn")}
             </Link>
           )}
 
           <button
             aria-expanded={menuOpen}
-            aria-label={menuOpen ? "Close navigation" : "Open navigation"}
+            aria-label={menuOpen ? t("header.closeNavigation") : t("header.openNavigation")}
             className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-on-surface-variant transition hover:bg-surface-container xl:hidden"
             onClick={() => setMenuOpen((open) => !open)}
             type="button"
@@ -164,23 +171,26 @@ export function SiteHeader() {
 
       {menuOpen && (
         <nav
-          aria-label="Mobile navigation"
+          aria-label={t("header.mobileNavigation")}
           className="border-t border-black/[0.05] bg-surface px-4 py-3 shadow-lg xl:hidden"
         >
           <div className="mx-auto grid max-w-[1240px] gap-1">
+            <div className="px-4 py-2 sm:hidden">
+              <LanguageSwitcher />
+            </div>
             {!isAuthenticated && (
               <Link className="rounded-xl px-4 py-3 text-sm font-semibold text-primary hover:bg-surface-container" href="/sign-in" onClick={() => setMenuOpen(false)}>
-                Sign in
+                {t("header.signIn")}
               </Link>
             )}
             {navigation.map((item) => (
               <Link
                 className="rounded-xl px-4 py-3 text-sm font-semibold text-on-surface-variant transition hover:bg-surface-container hover:text-on-surface"
                 href={item.href}
-                key={item.label}
+                key={item.labelKey}
                 onClick={() => setMenuOpen(false)}
               >
-                {item.label}
+                {t(item.labelKey)}
               </Link>
             ))}
             {isAuthenticated && (
@@ -190,10 +200,10 @@ export function SiteHeader() {
                   href="/my-circles"
                   onClick={() => setMenuOpen(false)}
                 >
-                  My circles
+                  {t("header.myCircles")}
                 </Link>
                 <button className="rounded-xl px-4 py-3 text-left text-sm font-semibold text-on-surface-variant hover:bg-surface-container" onClick={handleLogout} type="button">
-                  Sign out
+                  {t("header.signOut")}
                 </button>
               </>
             )}

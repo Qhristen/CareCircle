@@ -3,12 +3,14 @@
 import { GoogleLogin } from "@react-oauth/google";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { useGoogleLoginMutation } from "@/lib/store/api/authApi";
 import { useAppDispatch } from "@/lib/store/hooks";
 import { setCredentials } from "@/lib/store/slices/authSlice";
 
 export function GoogleAuthButton() {
+  const { t } = useTranslation();
   const router = useRouter();
   const dispatch = useAppDispatch();
   const [googleLogin, { isLoading }] = useGoogleLoginMutation();
@@ -23,7 +25,7 @@ export function GoogleAuthButton() {
           disabled
           type="button"
         >
-          Google sign-in is not configured
+          {t("auth.googleNotConfigured")}
         </button>
       </div>
     );
@@ -33,10 +35,10 @@ export function GoogleAuthButton() {
     <div className="mb-6 space-y-2">
       <div className={`flex min-h-11 justify-center ${isLoading ? "pointer-events-none opacity-60" : ""}`}>
         <GoogleLogin
-          onError={() => setError("Google sign-in could not be started.")}
+          onError={() => setError(t("auth.googleStartError"))}
           onSuccess={async ({ credential }) => {
             if (!credential) {
-              setError("Google did not return a valid credential.");
+              setError(t("auth.googleCredentialError"));
               return;
             }
             try {
@@ -45,7 +47,7 @@ export function GoogleAuthButton() {
               const requestedPath = new URLSearchParams(window.location.search).get("next");
               router.push(requestedPath?.startsWith("/") && !requestedPath.startsWith("//") ? requestedPath : "/explore-circles");
             } catch (requestError) {
-              setError(getApiErrorMessage(requestError, "Google sign-in failed."));
+              setError(getApiErrorMessage(requestError, t("auth.googleFailed")));
             }
           }}
           shape="pill"

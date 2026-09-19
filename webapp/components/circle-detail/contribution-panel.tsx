@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Icon } from "@/components/ui/icon";
 import { getApiErrorMessage } from "@/lib/api-error";
 import type { WishlistDetailItem } from "@/lib/circle-data";
@@ -53,13 +54,14 @@ export function ContributionPanel({
   onCopy: () => void;
   acceptsContributions: boolean;
 }) {
+  const { t } = useTranslation();
   const [message, setMessage] = useState("");
   const [anonymous, setAnonymous] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const percentage = Math.min(Math.round((raised / target) * 100), 100);
   const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(
-    `Join us in supporting ${circleTitle}. Contribute to this CareCircle: ${shareUrl}`,
+    `${t("circle.shareText", { title: circleTitle })} ${shareUrl}`,
   )}`;
 
   return (
@@ -67,21 +69,21 @@ export function ContributionPanel({
       <div className="rounded-2xl border border-surface-container bg-white p-6 shadow-card">
         <div className="mb-4 flex items-center justify-between gap-3 border-b border-surface-container pb-3">
           <span className="inline-flex items-center gap-1.5 text-xs font-bold text-red-700">
-            <Icon name={daysLeft === null ? "check" : "alarm"} size={14} /> {daysLeft === null ? "Funding complete — blessings are still welcome" : `${daysLeft} days left until circle lockdown`}
+            <Icon name={daysLeft === null ? "check" : "alarm"} size={14} /> {daysLeft === null ? t("circle.contribution.complete") : t("circle.contribution.lockdownDays", { count: daysLeft })}
           </span>
           <span className="rounded-full bg-secondary-fixed px-2 py-0.5 text-[11px] font-extrabold text-secondary">
-            {percentage}% Funded
+            {t("common.funded", { percent: percentage })}
           </span>
         </div>
 
         <div className="mb-4">
           <div className="flex items-baseline gap-2">
             <span className="text-[32px] font-extrabold tracking-tight text-on-surface">{naira(raised)}</span>
-            <span className="text-sm text-on-surface-variant">raised</span>
+            <span className="text-sm text-on-surface-variant">{t("circle.contribution.raised")}</span>
           </div>
           <div className="mt-1 flex justify-between text-xs text-on-surface-variant">
-            <span>Target: <strong className="text-on-surface">{naira(target)}</strong></span>
-            <span><strong>{supporters}</strong> supporters</span>
+            <span>{t("circle.contribution.target")} <strong className="text-on-surface">{naira(target)}</strong></span>
+            <span><strong>{supporters}</strong> {t("circle.contribution.supporters")}</span>
           </div>
         </div>
 
@@ -106,7 +108,7 @@ export function ContributionPanel({
             try {
               await onContribute({ amount, allocation, message, anonymous });
             } catch (requestError) {
-              setError(getApiErrorMessage(requestError, "Checkout could not be prepared."));
+              setError(getApiErrorMessage(requestError, t("circle.contribution.checkoutError")));
               setIsSubmitting(false);
             }
           }}
@@ -114,7 +116,7 @@ export function ContributionPanel({
 
           <div>
             <label className="mb-2 block text-sm font-bold text-on-surface" htmlFor="contribution-amount">
-              Select Amount to Chip In
+              {t("circle.contribution.selectAmount")}
             </label>
             <div className="mb-2 grid grid-cols-4 gap-2">
               {[2000, 5000, 10000, 25000].map((preset) => (
@@ -147,18 +149,18 @@ export function ContributionPanel({
           </div>
 
           <label className="block text-xs font-semibold text-on-surface-variant">
-            <span className="mb-1 block">Allocate to a specific wishlist item (optional)</span>
+            <span className="mb-1 block">{t("circle.contribution.allocate")}</span>
             <select
               className="w-full rounded-lg border border-surface-container-high bg-surface-container-low px-3 py-2.5 text-sm text-on-surface outline-none focus:border-secondary"
               onChange={(event) => onAllocationChange(event.target.value)}
               value={allocation}
             >
-              <option value="general">Split across general bundle</option>
+              <option value="general">{t("circle.contribution.generalBundle")}</option>
               {wishlist
                 .filter((item) => item.raised < item.goal)
                 .map((item) => (
                   <option key={item.id} value={item.id}>
-                    {item.name} ({naira(item.goal - item.raised)} needed)
+                    {item.name} ({t("circle.contribution.needed", { amount: naira(item.goal - item.raised) })})
                   </option>
                 ))}
             </select>
@@ -167,11 +169,11 @@ export function ContributionPanel({
 
 
           <label className="block text-xs font-semibold text-on-surface-variant">
-            <span className="mb-1 block">Your Note or Prayer for {beneficiaryName}</span>
+            <span className="mb-1 block">{t("circle.contribution.noteLabel", { name: beneficiaryName })}</span>
             <textarea
               className="w-full resize-none rounded-lg border border-surface-container-high bg-white p-3 text-sm leading-6 text-on-surface outline-none focus:border-secondary"
               onChange={(event) => setMessage(event.target.value)}
-              placeholder={`Write a warm message or blessing for ${beneficiaryName}...`}
+              placeholder={t("circle.contribution.notePlaceholder", { name: beneficiaryName })}
               rows={3}
               value={message}
             />
@@ -184,24 +186,24 @@ export function ContributionPanel({
               onChange={(event) => setAnonymous(event.target.checked)}
               type="checkbox"
             />
-            Hide my name and amount on the public wall. The organizer can still reconcile the payment privately.
+            {t("circle.contribution.anonymous")}
           </label>
 
           {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-xs font-semibold text-red-700" role="alert">{error}</p>}
 
           <button className="flex w-full items-center justify-center gap-2 rounded-full bg-primary px-5 py-3.5 text-sm font-extrabold text-white shadow-lg transition hover:bg-primary-container active:scale-[0.99] disabled:cursor-wait disabled:opacity-70" disabled={isSubmitting} type="submit">
-            <Icon name="heart" size={18} /> {isSubmitting ? "Preparing secure checkout…" : `Contribute ${naira(amount || 0)}`}
+            <Icon name="heart" size={18} /> {isSubmitting ? t("circle.contribution.preparing") : t("circle.contribution.contribute", { amount: naira(amount || 0) })}
           </button>
         </form> : (
           <div className="rounded-xl bg-surface-container-low p-4 text-center">
-            <p className="text-sm font-bold text-on-surface">This circle is no longer accepting contributions.</p>
-            <p className="mt-1 text-xs text-on-surface-variant">You can still read its story and community messages.</p>
+            <p className="text-sm font-bold text-on-surface">{t("circle.contribution.closedTitle")}</p>
+            <p className="mt-1 text-xs text-on-surface-variant">{t("circle.contribution.closedBody")}</p>
           </div>
         )}
 
         <div className="mt-5 border-t border-surface-container pt-4 text-center">
           <p className="text-[11px] font-bold tracking-wider text-on-surface-variant">
-            SECURE VIA <strong className="text-on-surface">Paystack</strong>
+            {t("circle.contribution.secureVia")} <strong className="text-on-surface">Paystack</strong>
           </p>
 
         </div>
@@ -210,17 +212,17 @@ export function ContributionPanel({
       <div className="rounded-2xl border border-surface-container bg-white p-6 shadow-soft">
         <div className="flex items-center justify-between">
           <h3 className="inline-flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-on-surface">
-            <Icon className="text-secondary" name="sparkles" size={16} /> Fulfillment Pipeline
+            <Icon className="text-secondary" name="sparkles" size={16} /> {t("circle.contribution.pipeline")}
           </h3>
-          <span className="text-[11px] font-bold text-secondary">Stage 1 Active</span>
+          <span className="text-[11px] font-bold text-secondary">{t("circle.contribution.stageActive")}</span>
         </div>
-        <p className="mt-2 text-xs leading-5 text-on-surface-variant">How funds convert directly into coordinated support for this circle:</p>
+        <p className="mt-2 text-xs leading-5 text-on-surface-variant">{t("circle.contribution.pipelineIntro")}</p>
         <ol className="relative mt-4 space-y-4 pl-6 before:absolute before:bottom-2 before:left-[7px] before:top-2 before:w-0.5 before:bg-surface-container-high">
           {[
-            ["Target Funding", `${supporters} friends pooled ${naira(raised)} toward the goal.`],
-            ["Group Purchase & Bundle Packing", "Supplier orders are verified and sanitarily packed."],
-            [`Delivery to ${location}`, "Courier dispatch goes directly to the verified recipient."],
-            ["Digital Keepsake Delivery", `${beneficiaryName} receives a book with every warm blessing.`],
+            [t("circle.contribution.targetFunding"), t("circle.contribution.targetFundingDetail", { count: supporters, amount: naira(raised) })],
+            [t("circle.contribution.groupPurchase"), t("circle.contribution.groupPurchaseDetail")],
+            [t("circle.contribution.delivery", { location }), t("circle.contribution.deliveryDetail")],
+            [t("circle.contribution.keepsake"), t("circle.contribution.keepsakeDetail", { name: beneficiaryName })],
           ].map(([label, detail], index) => (
             <li className={`relative ${index > 0 ? "opacity-65" : ""}`} key={label}>
               <span className={`absolute -left-6 top-0.5 h-4 w-4 rounded-full ${index === 0 ? "bg-primary ring-4 ring-primary-fixed" : "border-2 border-surface-container-high bg-white"}`} />
@@ -233,9 +235,9 @@ export function ContributionPanel({
 
       <div className="rounded-2xl border border-surface-container bg-white p-6 shadow-soft">
         <h3 className="inline-flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-on-surface">
-          <Icon className="text-primary" name="share" size={16} /> Spread The Word
+          <Icon className="text-primary" name="share" size={16} /> {t("circle.contribution.spreadWord")}
         </h3>
-        <p className="mt-2 text-sm leading-6 text-on-surface-variant">Send this link to friends, family, and community groups to help this circle reach its goal.</p>
+        <p className="mt-2 text-sm leading-6 text-on-surface-variant">{t("circle.contribution.spreadBody")}</p>
         <div className="mt-4 space-y-2">
           <a
             className="flex w-full items-center justify-center gap-2 rounded-full bg-[#25D366]/15 px-4 py-2.5 text-sm font-bold text-[#128C7E] transition hover:bg-[#25D366]/25"
@@ -243,10 +245,10 @@ export function ContributionPanel({
             rel="noopener noreferrer"
             target="_blank"
           >
-            <Icon name="message" size={17} /> Share on WhatsApp Group
+            <Icon name="message" size={17} /> {t("circle.contribution.shareWhatsApp")}
           </a>
           <button className="flex w-full items-center justify-center gap-2 rounded-full bg-surface-container px-4 py-2.5 text-sm font-bold text-on-surface transition hover:bg-surface-container-high" onClick={onCopy} type="button">
-            <Icon name={copied ? "check" : "copy"} size={17} /> {copied ? "Copied!" : "Copy Link"}
+            <Icon name={copied ? "check" : "copy"} size={17} /> {copied ? t("circle.contribution.copied") : t("circle.contribution.copyLink")}
           </button>
         </div>
       </div>

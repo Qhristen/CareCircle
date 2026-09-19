@@ -11,10 +11,13 @@
   "dependencies": {
     "@react-oauth/google": "^0.13.5",
     "@reduxjs/toolkit": "^2.12.0",
+    "i18next": "^26.4.2",
+    "i18next-browser-languagedetector": "^8.2.1",
     "next": "16.3.5",
     "next-themes": "^0.4.6",
     "react": "19.2.8",
     "react-dom": "19.2.8",
+    "react-i18next": "^17.0.14",
     "react-redux": "^9.3.0"
   },
   "devDependencies": {

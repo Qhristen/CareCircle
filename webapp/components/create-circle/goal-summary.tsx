@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslation } from "react-i18next";
 import { Icon } from "@/components/ui/icon";
 import type { WishlistItem } from "@/lib/create-circle-data";
 
@@ -27,6 +30,7 @@ export function GoalSummary({
   flexBuffer: boolean;
   onFlexBufferChange: (checked: boolean) => void;
 }) {
+  const { t } = useTranslation();
   const subtotal = items.reduce((total, item) => total + item.price, 0);
   const buffer = flexBuffer ? Math.round(subtotal * 0.05) : 0;
   const total = subtotal + buffer;
@@ -35,14 +39,14 @@ export function GoalSummary({
       .filter((item) => item.price > 0)
       .map((item, index) => ({
         id: String(item.id),
-        label: item.name.trim() || "Untitled item",
+        label: item.name.trim() || t("create.goal.untitled"),
         value: item.price,
         color: allocationColors[index % allocationColors.length],
       })),
     ...(buffer > 0
       ? [{
         id: "flex-buffer",
-        label: "Logistics / Flex Cash",
+        label: t("create.goal.flexCash"),
         value: buffer,
         color: "#6b7280",
       }]
@@ -69,23 +73,23 @@ export function GoalSummary({
       <div className="space-y-4 rounded-2xl bg-white p-6 shadow-card">
         <div className="flex items-center justify-between gap-3">
           <span className="text-xs font-extrabold uppercase tracking-wider text-on-surface-variant">
-            Dynamic Goal Breakdown
+            {t("create.goal.breakdown")}
           </span>
           <span className="rounded-full bg-secondary-fixed px-2.5 py-1 text-[11px] font-extrabold text-on-secondary-fixed">
-            Auto-Sync
+            {t("create.goal.autoSync")}
           </span>
         </div>
 
         <div className="rounded-xl bg-surface-container-low p-4">
           <span className="text-[11px] font-extrabold uppercase tracking-wider text-on-surface-variant">
-            Total Target Funding
+            {t("create.goal.total")}
           </span>
           <div className="mt-1 text-[32px] font-extrabold tracking-tight text-primary">
             {naira(total)}
           </div>
           <div className="mt-1 inline-flex items-center gap-1.5 text-sm font-bold text-secondary">
             <span aria-hidden="true">🏦</span>
-            Includes {items.length} curated wishlist item{items.length === 1 ? "" : "s"}
+            {t("create.goal.includes", { count: items.length })}
           </div>
         </div>
 
@@ -97,18 +101,18 @@ export function GoalSummary({
             </div>
           ))}
           {items.length === 0 && (
-            <p className="py-2 text-on-surface-variant">No wishlist items added yet.</p>
+            <p className="py-2 text-on-surface-variant">{t("create.goal.empty")}</p>
           )}
           {flexBuffer && (
             <div className="flex justify-between gap-3 py-1 text-on-surface-variant">
-              <span>Logistics / Flex Cash</span>
+              <span>{t("create.goal.flexCash")}</span>
               <span className="font-bold text-on-surface">{naira(buffer)}</span>
             </div>
           )}
         </div>
 
         <label className="flex cursor-pointer items-center justify-between gap-3 rounded-lg bg-surface-container p-2.5 text-sm font-bold text-on-surface">
-          <span>Add 5% Logistics / Flex Cash</span>
+          <span>{t("create.goal.addFlex")}</span>
           <input
             checked={flexBuffer}
             className="h-4 w-4 accent-primary"
@@ -119,7 +123,7 @@ export function GoalSummary({
 
         <div className="flex items-center gap-4 rounded-xl bg-surface-container-low p-4">
           <div
-            aria-label="Wishlist allocation visualization"
+            aria-label={t("create.goal.visualization")}
             className="h-16 w-16 shrink-0 rounded-full p-2"
             style={{ background: allocationGradient }}
           >
@@ -138,7 +142,7 @@ export function GoalSummary({
               </div>
             ))}
             {allocations.length === 0 && (
-              <p>Add an item and target amount to see the allocation.</p>
+              <p>{t("create.goal.allocationEmpty")}</p>
             )}
           </div>
         </div>
@@ -154,7 +158,7 @@ export function GoalSummary({
 
       <div className="space-y-3 rounded-2xl bg-white p-4 shadow-soft">
         <div className="flex items-center justify-between">
-          <span className="text-sm font-bold text-on-surface">Contributor Preview</span>
+          <span className="text-sm font-bold text-on-surface">{t("create.goal.preview")}</span>
           <Icon className="text-outline" name="eye" size={18} />
         </div>
         <div className="flex items-center gap-3 rounded-lg bg-surface-container-low p-3">
@@ -163,10 +167,10 @@ export function GoalSummary({
           </span>
           <span className="min-w-0">
             <span className="block truncate text-sm font-bold text-on-surface">
-              {title || `${recipientName || "Your recipient"}'s CareCircle`}
+              {title || t("create.goal.defaultTitle", { name: recipientName || t("create.goal.recipientFallback") })}
             </span>
             <span className="block truncate text-sm text-on-surface-variant">
-              Organized by You • {items.length} Items
+              {t("create.goal.organizedByYou", { count: items.length })}
             </span>
           </span>
         </div>

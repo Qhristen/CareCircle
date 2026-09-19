@@ -3,6 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import type { TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
 import { ContributionPanel, type ContributionInput } from "@/components/circle-detail/contribution-panel";
 import { ContributorWall } from "@/components/circle-detail/contributor-wall";
 import { OrganizerModal } from "@/components/circle-detail/organizer-modal";
@@ -19,17 +21,17 @@ function initials(name: string) {
   return name?.split(/\s+/).map((part) => part[0]).join("").slice(0, 2).toUpperCase();
 }
 
-function relativeTime(value: string) {
+function relativeTime(value: string, t: TFunction) {
   const elapsed = Date.now() - new Date(value).getTime();
   const minutes = Math.max(1, Math.floor(elapsed / 60_000));
-  if (minutes < 60) return `${minutes} min${minutes === 1 ? "" : "s"} ago`;
+  if (minutes < 60) return t("circle.relative.minuteAgo", { count: minutes });
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"} ago`;
+  if (hours < 24) return t("circle.relative.hourAgo", { count: hours });
   const days = Math.floor(hours / 24);
-  return `${days} day${days === 1 ? "" : "s"} ago`;
+  return t("circle.relative.dayAgo", { count: days });
 }
 
-function toBacker(entry: PublicContribution, index: number): Backer {
+function toBacker(entry: PublicContribution, index: number, t: TFunction): Backer {
   const accents: Backer["accent"][] = ["primary", "secondary", "tertiary"];
   return {
     id: entry.id,
@@ -37,7 +39,7 @@ function toBacker(entry: PublicContribution, index: number): Backer {
     name: entry.displayName,
     amount: (entry.amountKobo ?? 0) / 100,
     amountHidden: entry.amountKobo === null,
-    time: relativeTime(entry.createdAt),
+    time: relativeTime(entry.createdAt, t),
     message: entry.message ?? "",
     item: entry.wishlistItem?.name,
     anonymous: entry.anonymous,
@@ -46,8 +48,8 @@ function toBacker(entry: PublicContribution, index: number): Backer {
 }
 
 export function CircleDetailsPage({ circleId }: { circleId: string }) {
+  const { t } = useTranslation();
   const { data, error, isLoading, refetch } = useGetCircleQuery(circleId);
-  console.log("CircleDetailsPage data:", data, "error:", error, "isLoading:", isLoading);
 
   if (isLoading) {
     return <main className="mx-auto min-h-screen max-w-[1240px] animate-pulse px-4 py-10 sm:px-6"><div className="h-12 w-2/3 rounded-xl bg-surface-container" /><div className="mt-8 h-96 rounded-2xl bg-surface-container" /></main>;
@@ -58,9 +60,9 @@ export function CircleDetailsPage({ circleId }: { circleId: string }) {
       <main className="mx-auto grid min-h-[65vh] max-w-2xl place-items-center px-4 py-16 text-center">
         <div>
           <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-primary-fixed text-primary"><Icon name="heart" size={24} /></span>
-          <h1 className="mt-4 text-2xl font-extrabold text-on-surface">Circle unavailable</h1>
-          <p className="mt-2 text-sm text-on-surface-variant">{getApiErrorMessage(error, "This circle may be private, closed, or no longer available.")}</p>
-          <div className="mt-6 flex justify-center gap-3"><button className="rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-white" onClick={refetch} type="button">Try again</button><Link className="rounded-full bg-surface-container px-5 py-2.5 text-sm font-bold" href="/explore-circles">Explore circles</Link></div>
+          <h1 className="mt-4 text-2xl font-extrabold text-on-surface">{t("circle.unavailableTitle")}</h1>
+          <p className="mt-2 text-sm text-on-surface-variant">{getApiErrorMessage(error, t("circle.unavailableBody"))}</p>
+          <div className="mt-6 flex justify-center gap-3"><button className="rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-white" onClick={refetch} type="button">{t("common.tryAgain")}</button><Link className="rounded-full bg-surface-container px-5 py-2.5 text-sm font-bold" href="/explore-circles">{t("circle.exploreCircles")}</Link></div>
         </div>
       </main>
     );
@@ -70,9 +72,10 @@ export function CircleDetailsPage({ circleId }: { circleId: string }) {
 }
 
 function LoadedCircleDetails({ circle }: { circle: Circle }) {
+  const { t } = useTranslation();
   const presentation = presentOccasion(circle?.occasion);
   const organizer = circle.organizer ?? {
-    displayName: "CareCircle Organizer",
+    displayName: t("circle.defaultOrganizer"),
     verified: false,
   };
   const recipient = circle.recipient ?? {
@@ -108,15 +111,15 @@ function LoadedCircleDetails({ circle }: { circle: Circle }) {
     id: item.id,
     emoji: item.emoji || "🎁",
     name: item.name,
-    description: item.description || "A priority selected by the circle organizer.",
+    description: item.description || t("circle.priorityDescription"),
     goal: item.targetAmountKobo / 100,
     raised: item.fundedAmountKobo / 100,
     accent: (["primary", "secondary", "tertiary"] as const)[index % 3],
-    completionNote: item.status === "funded" ? "Secured by the community" : undefined,
+    completionNote: item.status === "funded" ? t("circle.securedByCommunity") : undefined,
     suggestedAmount: item.suggestedContributionKobo / 100,
   }));
   const { data: wallData } = useGetPublicContributionsQuery({ circleId: circle?.id, limit: 50 });
-  const backers = (wallData?.data ?? []).map(toBacker);
+  const backers = (wallData?.data ?? []).map((entry, index) => toBacker(entry, index, t));
   const [createIntent] = useCreateContributionIntentMutation();
   const [messageOrganizer, { isLoading: isSendingMessage }] = useMessageOrganizerMutation();
   const [amount, setAmount] = useState(5000);
@@ -141,16 +144,16 @@ function LoadedCircleDetails({ circle }: { circle: Circle }) {
   async function copyCircleLink() {
     await navigator.clipboard.writeText(circleLink);
     setCopied(true);
-    showToast("Circle link copied to clipboard!");
+    showToast(t("circle.linkCopied"));
     setTimeout(() => setCopied(false), 2500);
   }
 
   async function shareCircle() {
     try {
-      if (navigator.share) await navigator.share({ title: circle.title, text: `Join us in supporting ${circle.title}.`, url: circleLink });
+      if (navigator.share) await navigator.share({ title: circle.title, text: t("circle.shareText", { title: circle.title }), url: circleLink });
       else await copyCircleLink();
     } catch (error) {
-      if (!(error instanceof DOMException && error.name === "AbortError")) showToast("Sharing is unavailable here. Copy the circle link instead.");
+      if (!(error instanceof DOMException && error.name === "AbortError")) showToast(t("circle.shareUnavailable"));
     }
   }
 
@@ -175,7 +178,7 @@ function LoadedCircleDetails({ circle }: { circle: Circle }) {
         returnUrl: `${circleLink}?payment=return`,
       },
     }).unwrap();
-    if (!response.data.checkout.url) throw new Error("The payment provider did not return a checkout link.");
+    if (!response.data.checkout.url) throw new Error(t("circle.paymentLinkMissing"));
     window.location.assign(response.data.checkout.url);
   }
 
@@ -184,9 +187,9 @@ function LoadedCircleDetails({ circle }: { circle: Circle }) {
       await messageOrganizer({ circleId: circle?.id, message: organizerMessage.trim(), replyEmail: replyEmail.trim() }).unwrap();
       setOrganizerOpen(false);
       setOrganizerMessage("");
-      showToast(`Message sent to ${organizerName}. They'll reply by email.`);
+      showToast(t("circle.messageSent", { name: organizerName }));
     } catch (error) {
-      showToast(getApiErrorMessage(error, "Your message could not be sent."));
+      showToast(getApiErrorMessage(error, t("circle.messageError")));
     }
   }
 
@@ -198,26 +201,26 @@ function LoadedCircleDetails({ circle }: { circle: Circle }) {
     <main className="min-h-screen bg-surface">
       <section className="border-b border-surface-container-high bg-surface-container-low/60 px-4 py-2.5 sm:px-6">
         <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-2 text-xs text-on-surface-variant">
-          <nav aria-label="Breadcrumb" className="flex min-w-0 flex-wrap items-center gap-2"><Link className="hover:text-primary" href="/">Home</Link><span>/</span><Link className="hover:text-primary" href="/explore-circles">Explore</Link><span>/</span><span>{presentation.label}</span><span>/</span><span className="max-w-[190px] truncate font-semibold text-on-surface sm:max-w-none">{circle?.title}</span></nav>
-          <div className="flex items-center gap-3"><span className="inline-flex items-center gap-1.5 rounded-full bg-secondary-fixed/60 px-2.5 py-1 text-[11px] font-extrabold text-secondary"><span className="h-1.5 w-1.5 rounded-full bg-secondary" /> {circle?.status}</span><button aria-label={`Share ${circle?.title}`} className="inline-flex items-center gap-1 font-bold hover:text-primary" onClick={shareCircle} type="button"><Icon name="share" size={15} /> Share</button></div>
+          <nav aria-label={t("circle.breadcrumb")} className="flex min-w-0 flex-wrap items-center gap-2"><Link className="hover:text-primary" href="/">{t("circle.home")}</Link><span>/</span><Link className="hover:text-primary" href="/explore-circles">{t("circle.explore")}</Link><span>/</span><span>{t(`occasions.${circle.occasion}`, { defaultValue: t("occasions.other") })}</span><span>/</span><span className="max-w-[190px] truncate font-semibold text-on-surface sm:max-w-none">{circle?.title}</span></nav>
+          <div className="flex items-center gap-3"><span className="inline-flex items-center gap-1.5 rounded-full bg-secondary-fixed/60 px-2.5 py-1 text-[11px] font-extrabold text-secondary"><span className="h-1.5 w-1.5 rounded-full bg-secondary" /> {circle?.status}</span><button aria-label={t("explore.card.share", { title: circle?.title })} className="inline-flex items-center gap-1 font-bold hover:text-primary" onClick={shareCircle} type="button"><Icon name="share" size={15} /> {t("circle.share")}</button></div>
         </div>
       </section>
 
       <header className="bg-gradient-to-b from-surface-container-low via-surface to-surface px-4 pb-8 pt-6 sm:px-6">
         <div className="mx-auto max-w-[1240px]">
-          <div className="mb-3 flex flex-wrap items-center gap-2"><span className="inline-flex items-center gap-1.5 rounded-full bg-secondary-fixed px-3 py-1 text-[11px] font-extrabold text-on-secondary-fixed"><Icon name="check" size={14} /> {organizer.verified ? "Verified Circle" : "Community Circle"}</span><span className="rounded-full bg-surface-container-highest px-3 py-1 text-[11px] font-semibold text-on-surface-variant">{circle?.privacy === "public" ? "Public" : circle?.privacy === "invite" ? "Invite only" : "Link only"}</span><span className="rounded-full bg-surface-container px-3 py-1 text-[11px]">📍 {location || "Nigeria"}</span></div>
-          <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end"><div className="max-w-3xl"><h1 className="text-3xl font-extrabold leading-tight tracking-[-0.03em] sm:text-4xl">{circle?.title}</h1><p className="mt-2 text-base leading-7 text-on-surface-variant">A community CareCircle for {beneficiaryName}, organized by {organizerName}.</p></div><span className="rounded-full bg-white px-4 py-2 text-xs font-semibold shadow-sm">{supporters} supporter{supporters === 1 ? "" : "s"}</span></div>
+          <div className="mb-3 flex flex-wrap items-center gap-2"><span className="inline-flex items-center gap-1.5 rounded-full bg-secondary-fixed px-3 py-1 text-[11px] font-extrabold text-on-secondary-fixed"><Icon name="check" size={14} /> {organizer.verified ? t("circle.verifiedCircle") : t("circle.communityCircle")}</span><span className="rounded-full bg-surface-container-highest px-3 py-1 text-[11px] font-semibold text-on-surface-variant">{circle?.privacy === "public" ? t("circle.public") : circle?.privacy === "invite" ? t("circle.inviteOnly") : t("circle.linkOnly")}</span><span className="rounded-full bg-surface-container px-3 py-1 text-[11px]">📍 {location || "Nigeria"}</span></div>
+          <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end"><div className="max-w-3xl"><h1 className="text-3xl font-extrabold leading-tight tracking-[-0.03em] sm:text-4xl">{circle?.title}</h1><p className="mt-2 text-base leading-7 text-on-surface-variant">{t("circle.summary", { beneficiary: beneficiaryName, organizer: organizerName })}</p></div><span className="rounded-full bg-white px-4 py-2 text-xs font-semibold shadow-sm">{t("circle.supporterCount", { count: supporters })}</span></div>
         </div>
       </header>
 
       <div className="mx-auto grid max-w-[1240px] grid-cols-1 items-start gap-8 px-4 pb-12 sm:px-6 lg:grid-cols-12">
         <div className="min-w-0 space-y-8 lg:col-span-8">
           <section className="overflow-hidden rounded-2xl bg-white shadow-card">
-            <div className="relative h-72 bg-surface-container sm:h-96"><Image alt={cover.alt} className="object-cover" fill priority sizes="(max-width: 1023px) 100vw, 66vw" src={cover.url || "/onbording_image.png"} unoptimized /><div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-[#211b18]/85 via-transparent to-transparent p-6 text-white"><span className="text-[11px] font-extrabold uppercase tracking-widest text-primary-fixed">{presentation.emoji} {presentation.label}</span><p className="mt-1 max-w-xl text-xl font-bold leading-7">Small acts of care, gathered by a community, become meaningful support.</p></div></div>
-            <div className="flex flex-wrap items-center justify-between gap-4 p-5 sm:p-6"><div className="flex items-center gap-3"><span className="grid h-14 w-14 place-items-center rounded-full bg-primary-fixed text-sm font-extrabold text-primary">{initials(organizerName)}</span><div><div className="inline-flex items-center gap-1.5 font-bold">{organizerName} {organizer.verified && <Icon className="text-secondary" name="check" size={16} />}</div><p className="text-xs text-on-surface-variant">Organizer • {location}</p></div></div><button className="inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-bold text-primary hover:bg-surface-container" onClick={() => setOrganizerOpen(true)} type="button"><Icon name="message" size={16} /> Message Organizer</button></div>
+            <div className="relative h-72 bg-surface-container sm:h-96"><Image alt={cover.alt} className="object-cover" fill priority sizes="(max-width: 1023px) 100vw, 66vw" src={cover.url || "/onbording_image.png"} unoptimized /><div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-[#211b18]/85 via-transparent to-transparent p-6 text-white"><span className="text-[11px] font-extrabold uppercase tracking-widest text-primary-fixed">{presentation.emoji} {t(`occasions.${circle.occasion}`, { defaultValue: t("occasions.other") })}</span><p className="mt-1 max-w-xl text-xl font-bold leading-7">{t("circle.careQuote")}</p></div></div>
+            <div className="flex flex-wrap items-center justify-between gap-4 p-5 sm:p-6"><div className="flex items-center gap-3"><span className="grid h-14 w-14 place-items-center rounded-full bg-primary-fixed text-sm font-extrabold text-primary">{initials(organizerName)}</span><div><div className="inline-flex items-center gap-1.5 font-bold">{organizerName} {organizer.verified && <Icon className="text-secondary" name="check" size={16} />}</div><p className="text-xs text-on-surface-variant">{t("circle.organizer")} • {location}</p></div></div><button className="inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-bold text-primary hover:bg-surface-container" onClick={() => setOrganizerOpen(true)} type="button"><Icon name="message" size={16} /> {t("circle.messageOrganizer")}</button></div>
           </section>
 
-          <article className="space-y-4 rounded-2xl bg-white p-6 shadow-soft sm:p-8"><div className="flex flex-wrap items-center justify-between gap-3"><h2 className="inline-flex items-center gap-2 text-xl font-bold"><Icon className="text-primary" name="heart" size={20} /> The Story Behind This Circle</h2><span className="text-[11px] font-semibold uppercase tracking-wider text-on-surface-variant">Updated {circle.updatedAt ? relativeTime(circle.updatedAt) : "recently"}</span></div><p className="whitespace-pre-wrap text-sm leading-7 text-on-surface-variant sm:text-base">{circle?.storyMarkdown || `${organizerName} created this CareCircle to bring friends, family, and well-wishers together around practical support for ${beneficiaryName}.`}</p></article>
+          <article className="space-y-4 rounded-2xl bg-white p-6 shadow-soft sm:p-8"><div className="flex flex-wrap items-center justify-between gap-3"><h2 className="inline-flex items-center gap-2 text-xl font-bold"><Icon className="text-primary" name="heart" size={20} /> {t("circle.storyTitle")}</h2><span className="text-[11px] font-semibold uppercase tracking-wider text-on-surface-variant">{t("circle.updated", { time: circle.updatedAt ? relativeTime(circle.updatedAt, t) : t("circle.recently") })}</span></div><p className="whitespace-pre-wrap text-sm leading-7 text-on-surface-variant sm:text-base">{circle?.storyMarkdown || t("circle.storyFallback", { organizer: organizerName, beneficiary: beneficiaryName })}</p></article>
 
           <WishlistSection items={wishlist} location={location || "Nigeria"} onFundItem={selectWishlistItem} />
           <ContributorWall backers={backers} supporters={supporters} />

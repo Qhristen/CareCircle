@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Icon } from "@/components/ui/icon";
 import type { Backer } from "@/lib/circle-data";
 
@@ -22,6 +23,7 @@ export function ContributorWall({
   backers: Backer[];
   supporters: number;
 }) {
+  const { t } = useTranslation();
   const [tab, setTab] = useState<"all" | "prayers">("all");
   const [visibleCount, setVisibleCount] = useState(4);
   const filtered = useMemo(
@@ -35,8 +37,8 @@ export function ContributorWall({
       <div className="flex flex-col justify-between gap-3 border-b border-surface-container pb-3 sm:flex-row sm:items-center">
         <div className="flex items-center gap-5 overflow-x-auto">
           {[
-            ["all", "All Contributions", supporters],
-            ["prayers", "Messages & Prayers", messageCount],
+            ["all", t("circle.wall.all"), supporters],
+            ["prayers", t("circle.wall.messages"), messageCount],
           ].map(([value, label, count]) => (
             <button
               aria-pressed={tab === value}
@@ -58,7 +60,7 @@ export function ContributorWall({
           ))}
         </div>
         <span className="inline-flex items-center gap-1.5 text-xs font-bold text-secondary">
-          <Icon name="shield" size={14} /> Bank Verified Ledger
+          <Icon name="shield" size={14} /> {t("circle.wall.verifiedLedger")}
         </span>
       </div>
 
@@ -73,12 +75,12 @@ export function ContributorWall({
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="text-sm font-bold text-on-surface">{backer.name}</span>
                   <span className="rounded-full bg-secondary-fixed px-2 py-0.5 text-[11px] font-extrabold text-on-secondary-fixed">
-                    {backer.amountHidden ? "Private amount" : backer.item ? `Funded Item: ${naira(backer.amount)}` : naira(backer.amount)}
+                    {backer.amountHidden ? t("circle.wall.privateAmount") : backer.item ? t("circle.wall.fundedItem", { amount: naira(backer.amount) }) : naira(backer.amount)}
                   </span>
                 </div>
                 <span className="text-xs text-on-surface-variant">{backer.time}</span>
               </div>
-              {backer.item && <p className="mt-1 text-xs font-medium text-on-surface-variant">Full sponsorship of <em>{backer.item}</em></p>}
+              {backer.item && <p className="mt-1 text-xs font-medium text-on-surface-variant">{t("circle.wall.fullSponsorship", { item: backer.item })}</p>}
               {backer.message && <p className="mt-1 text-sm italic leading-6 text-on-surface">“{backer.message}”</p>}
             </div>
           </article>
@@ -87,7 +89,7 @@ export function ContributorWall({
 
       {filtered.length === 0 && (
         <p className="rounded-xl bg-surface-container-low px-4 py-8 text-center text-sm text-on-surface-variant">
-          No public {tab === "prayers" ? "messages" : "contributions"} yet.
+          {tab === "prayers" ? t("circle.wall.emptyMessages") : t("circle.wall.emptyContributions")}
         </p>
       )}
 
@@ -97,7 +99,7 @@ export function ContributorWall({
           onClick={() => setVisibleCount((count) => count + 3)}
           type="button"
         >
-          Load More Messages & Well-Wishes
+          {t("circle.wall.loadMore")}
         </button>
       )}
     </section>

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "react-i18next";
 import { Icon } from "@/components/ui/icon";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { useRegisterMutation } from "@/lib/store/api/authApi";
@@ -13,6 +14,7 @@ const fieldClass =
   "w-full rounded-lg bg-surface-container-low px-4 py-3 text-sm text-on-surface outline-none transition placeholder:text-outline/70 focus:bg-white focus:ring-2 focus:ring-secondary";
 
 export function SignUpForm() {
+  const { t } = useTranslation();
   const router = useRouter();
   const dispatch = useAppDispatch();
   const [showPassword, setShowPassword] = useState(false);
@@ -27,12 +29,12 @@ export function SignUpForm() {
 
   const strength =
     password.length === 0
-      ? { label: "Enter 8+ chars, number, uppercase", color: "bg-surface-container-highest", text: "text-on-surface-variant" }
+      ? { label: t("auth.strengthEmpty"), color: "bg-surface-container-highest", text: "text-on-surface-variant" }
       : score <= 1
-        ? { label: "Weak: Add numbers & symbols", color: "bg-red-600", text: "text-red-700" }
+        ? { label: t("auth.strengthWeak"), color: "bg-red-600", text: "text-red-700" }
         : score === 2
-          ? { label: "Moderate: Good progress", color: "bg-tertiary", text: "text-tertiary" }
-          : { label: "Rock solid password", color: "bg-secondary", text: "text-secondary" };
+          ? { label: t("auth.strengthModerate"), color: "bg-tertiary", text: "text-tertiary" }
+          : { label: t("auth.strengthStrong"), color: "bg-secondary", text: "text-secondary" };
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -49,7 +51,7 @@ export function SignUpForm() {
       dispatch(setCredentials({ user: response.user }));
       router.push("/create-circle");
     } catch (requestError) {
-      setError(getApiErrorMessage(requestError, "Unable to create your account."));
+      setError(getApiErrorMessage(requestError, t("auth.signUpError")));
     }
   }
 
@@ -57,17 +59,17 @@ export function SignUpForm() {
     <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="flex flex-col gap-2 text-[13px] font-bold">
-          First Name
+          {t("auth.firstName")}
           <input autoComplete="given-name" className={fieldClass} name="firstName" placeholder="e.g. Babatunde" required type="text" />
         </label>
         <label className="flex flex-col gap-2 text-[13px] font-bold">
-          Last Name
+          {t("auth.lastName")}
           <input autoComplete="family-name" className={fieldClass} name="lastName" placeholder="e.g. Adeleke" required type="text" />
         </label>
       </div>
 
       <label className="flex flex-col gap-2 text-[13px] font-bold">
-        Email Address
+        {t("auth.emailAddress")}
         <span className="relative block">
           <Icon className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant" name="mail" size={19} />
           <input autoComplete="email" className={`${fieldClass} pl-11`} name="email" placeholder="you@domain.com" required type="email" />
@@ -76,9 +78,9 @@ export function SignUpForm() {
 
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
-          <label className="text-[13px] font-bold" htmlFor="signup-password">Create Password</label>
+          <label className="text-[13px] font-bold" htmlFor="signup-password">{t("auth.createPassword")}</label>
           <button className="text-xs font-bold text-primary hover:underline" onClick={() => setShowPassword((shown) => !shown)} type="button">
-            {showPassword ? "Hide" : "Show"}
+            {showPassword ? t("common.hide") : t("common.show")}
           </button>
         </div>
         <span className="relative block">
@@ -90,7 +92,7 @@ export function SignUpForm() {
             minLength={8}
             name="password"
             onChange={(event) => setPassword(event.target.value)}
-            placeholder="Minimum 8 characters"
+            placeholder={t("auth.passwordPlaceholder")}
             required
             type={showPassword ? "text" : "password"}
             value={password}
@@ -103,7 +105,7 @@ export function SignUpForm() {
         </div>
         <div className="flex items-center justify-between gap-3 text-[11px] font-semibold">
           <span className={strength.text}>{strength.label}</span>
-          <span className="inline-flex items-center gap-1 text-on-surface-variant"><Icon className="text-secondary" name="shield" size={14} /> Encrypted</span>
+          <span className="inline-flex items-center gap-1 text-on-surface-variant"><Icon className="text-secondary" name="shield" size={14} /> {t("auth.encrypted")}</span>
         </div>
       </div>
 
@@ -111,26 +113,26 @@ export function SignUpForm() {
         <label className="flex cursor-pointer items-start gap-3">
           <input className="mt-1 h-4 w-4 shrink-0 accent-primary" required type="checkbox" />
           <span>
-            I agree to the <a className="font-semibold text-primary hover:underline" href="#">Community Guidelines</a>,{" "}
-            <a className="font-semibold text-primary hover:underline" href="#">Terms of Service</a>, and consent to escrow holding rules.
+            {t("auth.agreementStart")} <a className="font-semibold text-primary hover:underline" href="#">{t("auth.communityGuidelines")}</a>,{" "}
+            <a className="font-semibold text-primary hover:underline" href="#">{t("auth.termsOfService")}</a>, {t("auth.agreementEnd")}
           </span>
         </label>
         <label className="flex cursor-pointer items-start gap-3">
           <input className="mt-1 h-4 w-4 shrink-0 accent-primary" defaultChecked type="checkbox" />
-          <span>Receive joyful milestone reminders for close friends & family (optional). Never spam.</span>
+          <span>{t("auth.reminders")}</span>
         </label>
       </div>
 
       {error && <p className="rounded-lg bg-red-50 px-4 py-3 text-sm font-semibold text-red-700" role="alert">{error}</p>}
 
       <button className="mt-1 inline-flex w-full items-center justify-center gap-3 rounded-full bg-primary px-6 py-4 text-sm font-extrabold text-white shadow-md transition hover:bg-primary-container active:scale-[0.99] disabled:cursor-wait disabled:opacity-70" disabled={isLoading} type="submit">
-        {isLoading ? "Creating your account..." : "Create Account & Start Supporting"}
+        {isLoading ? t("auth.creatingAccount") : t("auth.createAccountButton")}
         {!isLoading && <Icon name="arrow-right" size={19} />}
       </button>
 
       <p className="text-center text-sm text-on-surface-variant">
-        Already have an account?{" "}
-        <Link className="font-bold text-primary underline decoration-primary/40 underline-offset-4" href="/sign-in">Sign in here</Link>
+        {t("auth.alreadyAccount")} {" "}
+        <Link className="font-bold text-primary underline decoration-primary/40 underline-offset-4" href="/sign-in">{t("auth.signInHere")}</Link>
       </p>
     </form>
   );
