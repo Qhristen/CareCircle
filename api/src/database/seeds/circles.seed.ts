@@ -784,7 +784,7 @@ export const circleSeedDefinitions: CircleSeedDefinition[] = [
 ];
 
 export const seedSlug = (title: string): string =>
-  `seed-${title
+  `cc-${title
     .toLowerCase()
     .normalize('NFKD')
     .replace(/[\u0300-\u036f]/g, '')

@@ -56,7 +56,7 @@ export const typeOrmConfig = (config: ConfigService): TypeOrmModuleOptions => ({
         database: config.get<string>('DB_NAME'),
       }),
   entities: CareCircleEntities,
-  migrations: [__dirname + '/../database/migrations/*CareCircle*{.ts,.js}'],
+  migrations: [__dirname + '/../database/migrations/*{.ts,.js}'],
   synchronize: false,
   logging: config.get<string>('NODE_ENV') === 'development',
   ssl:

@@ -19,7 +19,7 @@ const options: DataSourceOptions = {
         database: process.env.DB_NAME || 'CareCircle',
       }),
   entities: CareCircleEntities,
-  migrations: [resolve(__dirname, 'migrations', '*CareCircle*.{ts,js}')],
+  migrations: [resolve(__dirname, 'migrations', '*.{ts,js}')],
   synchronize: false,
   logging: process.env.NODE_ENV === 'development',
   ssl:
