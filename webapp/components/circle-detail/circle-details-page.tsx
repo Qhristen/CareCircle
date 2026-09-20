@@ -106,7 +106,7 @@ function LoadedCircleDetails({ circle }: { circle: Circle }) {
   const organizerName = organizer.displayName;
   const beneficiaryName = recipient.displayName;
   const location = [recipient.city, recipient.countryCode].filter(Boolean).join(", ");
-  const circleLink = `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/circles/${circle?.slug}`;
+  const circleLink = `${window.location.host}/circles/${circle?.slug}`;
   const wishlist: WishlistDetailItem[] = wishlistItems.map((item, index) => ({
     id: item.id,
     emoji: item.emoji || "🎁",
